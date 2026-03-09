@@ -1,0 +1,112 @@
+# System Workflow
+
+The Smart Road Assist system simulates a roadside assistance platform
+where users can request help and dispatchers assign mechanics.
+
+1. Registration and login
+
+All users register through the Dispatcher.
+Dispatcher stores authentication data in MongoDB.
+
+Each user has a role:
+
+ADMIN
+USER
+MECHANIC
+DISPATCHER
+
+Dispatcher validates tokens and permissions for every request.
+
+2. Creating a request
+
+A USER sends a request for help.
+
+POST /requests
+
+The request contains:
+
+type
+description
+location
+
+Request status is set to CREATED.
+
+3. Dispatcher assigns mechanic
+
+A DISPATCHER checks open requests.
+
+GET /requests
+
+Dispatcher selects a mechanic and assigns the request.
+
+PUT /requests/{id}/assign
+
+Request status becomes ASSIGNED.
+
+Mechanic status becomes BUSY.
+
+4. Mechanic processes request
+
+Mechanic updates request status.
+
+PUT /requests/{id}/status
+
+Possible values:
+
+IN_PROGRESS
+DONE
+
+5. Payment
+
+After request is done,
+payment service creates payment.
+
+POST /payments
+
+Status:
+
+PENDING
+PAID
+FAILED
+
+6. Notification
+
+Notification service sends message to user.
+
+POST /notifications
+
+Example messages:
+
+Mechanic assigned
+Request completed
+Payment received
+
+7. Dispatcher responsibilities
+
+Dispatcher is the single entry point.
+
+It performs:
+
+authentication
+authorization
+routing
+logging
+error handling
+
+All services are accessed through dispatcher.
+
+8. RMM Level 3
+
+Each entity is a resource:
+
+users
+requests
+mechanics
+payments
+notifications
+
+Each resource has its own URI.
+
+Correct HTTP methods are used.
+
+Responses may contain links to related resources.

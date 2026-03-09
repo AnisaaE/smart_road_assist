@@ -1,10 +1,10 @@
-package com.smartassist.auth;
+package com.smartassist.notification;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class AuthApplicationTests {
+class NotificationApplicationTests {
 
 	@Test
 	void contextLoads() {
