@@ -47,6 +47,11 @@ public class MechanicServiceImpl implements MechanicService {
         return mechanicMapper.toResponse(mechanicRepository.save(mechanicProfile));
     }
 
+    @Override
+    public void deleteMechanic(String id) {
+        mechanicRepository.delete(findMechanicById(id));
+    }
+
     private MechanicProfile findMechanicById(String id) {
         return mechanicRepository.findById(id)
                 .orElseThrow(() -> new MechanicNotFoundException(buildMechanicNotFoundMessage(id)));

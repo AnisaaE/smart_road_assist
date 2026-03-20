@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -43,6 +44,12 @@ public class MechanicController {
     @PutMapping(MECHANIC_ID_PATH)
     public MechanicResponse updateMechanic(@PathVariable String id, @RequestBody UpdateMechanicRequest request) {
         return mechanicService.updateMechanic(id, request);
+    }
+
+    @DeleteMapping(MECHANIC_ID_PATH)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteMechanic(@PathVariable String id) {
+        mechanicService.deleteMechanic(id);
     }
 
     @PostMapping

@@ -15,4 +15,6 @@ public interface MechanicService {
     MechanicResponse getMechanicById(String id);
 
     MechanicResponse updateMechanic(String id, UpdateMechanicRequest request);
+
+    void deleteMechanic(String id);
 }
