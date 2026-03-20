@@ -14,9 +14,11 @@ import com.smartassist.request.service.RequestService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/requests")
+@RequestMapping(RequestController.REQUESTS_PATH)
 @RequiredArgsConstructor
 public class RequestController {
+
+    static final String REQUESTS_PATH = "/requests";
 
     private final RequestService requestService;
 
