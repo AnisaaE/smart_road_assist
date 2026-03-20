@@ -46,7 +46,7 @@ public class MechanicMapper {
     public void applyUpdate(MechanicProfile profile, UpdateMechanicRequest request) {
         profile.setName(request.name());
         profile.setPhoneNumber(request.phoneNumber());
-        profile.setSpecialties(request.specialties());
+        profile.setSpecialties(copySpecialties(request.specialties()));
         profile.setServiceArea(request.serviceArea());
     }
 
