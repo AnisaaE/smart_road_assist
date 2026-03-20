@@ -1,6 +1,7 @@
 package com.smartassist.request.mapper;
 
 import java.time.Instant;
+import java.util.List;
 
 import org.springframework.stereotype.Component;
 
@@ -33,5 +34,11 @@ public class RequestMapper {
                 request.getStatus(),
                 request.getMechanicId(),
                 request.getCreatedAt());
+    }
+
+    public List<RequestResponse> toResponseList(List<AssistanceRequest> requests) {
+        return requests.stream()
+                .map(this::toResponse)
+                .toList();
     }
 }

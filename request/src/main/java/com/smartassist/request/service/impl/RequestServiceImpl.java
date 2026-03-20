@@ -31,9 +31,6 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public List<RequestResponse> getAllRequests() {
-        return requestRepository.findAll()
-                .stream()
-                .map(requestMapper::toResponse)
-                .toList();
+        return requestMapper.toResponseList(requestRepository.findAll());
     }
 }
