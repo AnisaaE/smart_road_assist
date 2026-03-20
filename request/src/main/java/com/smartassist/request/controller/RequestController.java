@@ -29,6 +29,7 @@ public class RequestController {
 
     static final String REQUESTS_PATH = "/requests";
     private static final String REQUEST_ID_PATH = "/{id}";
+    private static final String ASSIGN_PATH = REQUEST_ID_PATH + "/assign";
 
     private final RequestService requestService;
 
@@ -53,7 +54,7 @@ public class RequestController {
         requestService.deleteRequest(id);
     }
 
-    @PutMapping(REQUEST_ID_PATH + "/assign")
+    @PutMapping(ASSIGN_PATH)
     public RequestResponse assignMechanic(@PathVariable String id, @RequestBody AssignMechanicRequest request) {
         return requestService.assignMechanic(id, request);
     }
