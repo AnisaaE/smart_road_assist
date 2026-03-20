@@ -110,4 +110,27 @@ class RequestServiceImplUpdateStatusTest {
 
         verify(requestRepository, never()).save(any(AssistanceRequest.class));
     }
+
+    @Test
+    void updateStatusShouldRejectTransitionFromCreatedToDone() {
+        AssistanceRequest existingRequest = AssistanceRequest.builder()
+                .id("req-1")
+                .userId("user-123")
+                .type(RequestType.BATTERY)
+                .description("Battery is dead")
+                .location("Downtown garage")
+                .status(RequestStatus.CREATED)
+                .createdAt(Instant.parse("2026-03-20T10:15:30Z"))
+                .build();
+
+        when(requestRepository.findById("req-1")).thenReturn(Optional.of(existingRequest));
+
+        assertThatThrownBy(() -> requestService.updateStatus(
+                "req-1",
+                new UpdateRequestStatusRequest(RequestStatus.DONE)))
+                .isInstanceOf(InvalidRequestStateException.class)
+                .hasMessage("Cannot change request status from CREATED to DONE");
+
+        verify(requestRepository, never()).save(any(AssistanceRequest.class));
+    }
 }
