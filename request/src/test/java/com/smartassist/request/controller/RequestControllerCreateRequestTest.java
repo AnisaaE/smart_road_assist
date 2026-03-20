@@ -56,4 +56,19 @@ class RequestControllerCreateRequestTest {
                 .andExpect(jsonPath("$.status").value("CREATED"))
                 .andExpect(jsonPath("$.type").value("BATTERY"));
     }
+
+    @Test
+    void createRequestShouldRejectInvalidPayload() throws Exception {
+        mockMvc.perform(post("/requests")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "userId": "",
+                                  "description": "Battery is dead",
+                                  "location": ""
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Request validation failed"));
+    }
 }
