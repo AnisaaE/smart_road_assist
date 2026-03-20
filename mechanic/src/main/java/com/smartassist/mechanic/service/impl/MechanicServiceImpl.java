@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.smartassist.mechanic.dto.request.CreateMechanicRequest;
+import com.smartassist.mechanic.dto.request.UpdateMechanicRequest;
 import com.smartassist.mechanic.dto.response.MechanicResponse;
 import com.smartassist.mechanic.exception.MechanicNotFoundException;
 import com.smartassist.mechanic.mapper.MechanicMapper;
@@ -37,6 +38,13 @@ public class MechanicServiceImpl implements MechanicService {
     @Override
     public MechanicResponse getMechanicById(String id) {
         return mechanicMapper.toResponse(findMechanicById(id));
+    }
+
+    @Override
+    public MechanicResponse updateMechanic(String id, UpdateMechanicRequest request) {
+        MechanicProfile mechanicProfile = findMechanicById(id);
+        mechanicMapper.applyUpdate(mechanicProfile, request);
+        return mechanicMapper.toResponse(mechanicRepository.save(mechanicProfile));
     }
 
     private MechanicProfile findMechanicById(String id) {

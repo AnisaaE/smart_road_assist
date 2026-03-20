@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.smartassist.mechanic.dto.request.CreateMechanicRequest;
+import com.smartassist.mechanic.dto.request.UpdateMechanicRequest;
 import com.smartassist.mechanic.dto.response.MechanicResponse;
 import com.smartassist.mechanic.model.MechanicProfile;
 
@@ -40,6 +41,13 @@ public class MechanicMapper {
         return profiles.stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    public void applyUpdate(MechanicProfile profile, UpdateMechanicRequest request) {
+        profile.setName(request.name());
+        profile.setPhoneNumber(request.phoneNumber());
+        profile.setSpecialties(request.specialties());
+        profile.setServiceArea(request.serviceArea());
     }
 
     private List<String> copySpecialties(List<String> specialties) {

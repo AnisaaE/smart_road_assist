@@ -6,12 +6,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.smartassist.mechanic.dto.request.CreateMechanicRequest;
+import com.smartassist.mechanic.dto.request.UpdateMechanicRequest;
 import com.smartassist.mechanic.dto.response.MechanicResponse;
 import com.smartassist.mechanic.service.MechanicService;
 
@@ -36,6 +38,11 @@ public class MechanicController {
     @GetMapping(MECHANIC_ID_PATH)
     public MechanicResponse getMechanicById(@PathVariable String id) {
         return mechanicService.getMechanicById(id);
+    }
+
+    @PutMapping(MECHANIC_ID_PATH)
+    public MechanicResponse updateMechanic(@PathVariable String id, @RequestBody UpdateMechanicRequest request) {
+        return mechanicService.updateMechanic(id, request);
     }
 
     @PostMapping

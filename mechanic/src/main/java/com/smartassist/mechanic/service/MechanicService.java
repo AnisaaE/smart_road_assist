@@ -3,6 +3,7 @@ package com.smartassist.mechanic.service;
 import java.util.List;
 
 import com.smartassist.mechanic.dto.request.CreateMechanicRequest;
+import com.smartassist.mechanic.dto.request.UpdateMechanicRequest;
 import com.smartassist.mechanic.dto.response.MechanicResponse;
 
 public interface MechanicService {
@@ -12,4 +13,6 @@ public interface MechanicService {
     List<MechanicResponse> getAllMechanics();
 
     MechanicResponse getMechanicById(String id);
+
+    MechanicResponse updateMechanic(String id, UpdateMechanicRequest request);
 }
