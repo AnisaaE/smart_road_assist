@@ -100,7 +100,11 @@ public class RequestServiceImpl implements RequestService {
 
     private void validateAssignment(AssistanceRequest request) {
         if (request.getStatus() == RequestStatus.CANCELLED) {
-            throw new InvalidRequestStateException("Cannot assign mechanic to request with status CANCELLED");
+            throw new InvalidRequestStateException(buildInvalidAssignmentMessage(request.getStatus()));
         }
+    }
+
+    private String buildInvalidAssignmentMessage(RequestStatus status) {
+        return "Cannot assign mechanic to request with status " + status;
     }
 }
