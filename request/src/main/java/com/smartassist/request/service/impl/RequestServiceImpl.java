@@ -10,9 +10,11 @@ import com.smartassist.request.dto.request.CreateRequestRequest;
 import com.smartassist.request.dto.request.UpdateRequestStatusRequest;
 import com.smartassist.request.dto.request.UpdateRequestRequest;
 import com.smartassist.request.dto.response.RequestResponse;
+import com.smartassist.request.exception.InvalidRequestStateException;
 import com.smartassist.request.mapper.RequestMapper;
 import com.smartassist.request.exception.RequestNotFoundException;
 import com.smartassist.request.model.AssistanceRequest;
+import com.smartassist.request.model.RequestStatus;
 import com.smartassist.request.repository.RequestRepository;
 import com.smartassist.request.service.RequestService;
 
@@ -69,6 +71,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public RequestResponse updateStatus(String id, UpdateRequestStatusRequest request) {
         AssistanceRequest existingRequest = findRequestOrThrow(id);
+        validateStatusTransition(existingRequest.getStatus(), request.status());
         requestMapper.applyStatusUpdate(existingRequest, request);
 
         AssistanceRequest updatedRequest = requestRepository.save(existingRequest);
@@ -82,5 +85,11 @@ public class RequestServiceImpl implements RequestService {
 
     private String buildNotFoundMessage(String id) {
         return "Request not found: " + id;
+    }
+
+    private void validateStatusTransition(RequestStatus currentStatus, RequestStatus newStatus) {
+        if (currentStatus == RequestStatus.DONE && newStatus == RequestStatus.IN_PROGRESS) {
+            throw new InvalidRequestStateException("Cannot change request status from DONE to IN_PROGRESS");
+        }
     }
 }
