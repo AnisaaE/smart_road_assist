@@ -33,6 +33,10 @@ public class MechanicMapper {
     }
 
     public List<MechanicResponse> toResponseList(List<MechanicProfile> profiles) {
+        if (profiles == null) {
+            return List.of();
+        }
+
         return profiles.stream()
                 .map(this::toResponse)
                 .toList();
