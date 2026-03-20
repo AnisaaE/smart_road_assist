@@ -61,8 +61,7 @@ public class MechanicServiceImpl implements MechanicService {
     @Override
     public MechanicStateResponse updateMechanicStatus(String id, UpdateMechanicStatusRequest request) {
         findMechanicById(id);
-        MechanicLiveState liveState = mechanicLiveStateRepository.findById(id)
-                .orElse(MechanicLiveState.builder().mechanicId(id).build());
+        MechanicLiveState liveState = findOrCreateLiveState(id);
         liveState.setStatus(request.status());
         return mechanicMapper.toStateResponse(mechanicLiveStateRepository.save(liveState));
     }
@@ -74,5 +73,10 @@ public class MechanicServiceImpl implements MechanicService {
 
     private String buildMechanicNotFoundMessage(String id) {
         return "Mechanic not found: " + id;
+    }
+
+    private MechanicLiveState findOrCreateLiveState(String id) {
+        return mechanicLiveStateRepository.findById(id)
+                .orElse(MechanicLiveState.builder().mechanicId(id).build());
     }
 }
