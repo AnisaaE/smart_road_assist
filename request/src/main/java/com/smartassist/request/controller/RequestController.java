@@ -11,6 +11,7 @@ import com.smartassist.request.dto.request.CreateRequestRequest;
 import com.smartassist.request.dto.response.RequestResponse;
 import com.smartassist.request.service.RequestService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -24,7 +25,7 @@ public class RequestController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public RequestResponse createRequest(@RequestBody CreateRequestRequest request) {
+    public RequestResponse createRequest(@Valid @RequestBody CreateRequestRequest request) {
         return requestService.createRequest(request);
     }
 }
