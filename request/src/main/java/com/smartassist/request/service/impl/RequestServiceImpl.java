@@ -52,8 +52,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public void deleteRequest(String id) {
-        AssistanceRequest request = findRequestOrThrow(id);
-        requestRepository.delete(request);
+        requestRepository.delete(findRequestOrThrow(id));
     }
 
     private AssistanceRequest findRequestOrThrow(String id) {
