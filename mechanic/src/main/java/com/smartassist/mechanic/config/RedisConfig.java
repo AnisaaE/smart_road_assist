@@ -15,9 +15,10 @@ import com.smartassist.mechanic.repository.MechanicLiveStateRepository;
 @EnableRedisRepositories(basePackageClasses = MechanicLiveStateRepository.class)
 public class RedisConfig {
 
+    public static final String DEFAULT_REDIS_TEMPLATE = "redisTemplate";
     public static final String MECHANIC_LIVE_STATE_REDIS_TEMPLATE = "mechanicLiveStateRedisTemplate";
 
-    @Bean({ "redisTemplate", MECHANIC_LIVE_STATE_REDIS_TEMPLATE })
+    @Bean({ DEFAULT_REDIS_TEMPLATE, MECHANIC_LIVE_STATE_REDIS_TEMPLATE })
     public RedisTemplate<String, MechanicLiveState> mechanicLiveStateRedisTemplate(
             RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, MechanicLiveState> redisTemplate = new RedisTemplate<>();
