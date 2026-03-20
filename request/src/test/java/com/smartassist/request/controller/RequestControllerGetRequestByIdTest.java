@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.smartassist.request.exception.RequestNotFoundException;
 import com.smartassist.request.dto.response.RequestResponse;
 import com.smartassist.request.model.RequestStatus;
 import com.smartassist.request.model.RequestType;
@@ -43,5 +44,15 @@ class RequestControllerGetRequestByIdTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("req-1"))
                 .andExpect(jsonPath("$.type").value("BATTERY"));
+    }
+
+    @Test
+    void getRequestByIdShouldReturnNotFoundWhenRequestDoesNotExist() throws Exception {
+        when(requestService.getRequestById("missing-id"))
+                .thenThrow(new RequestNotFoundException("Request not found: missing-id"));
+
+        mockMvc.perform(get("/requests/missing-id"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Request not found: missing-id"));
     }
 }
