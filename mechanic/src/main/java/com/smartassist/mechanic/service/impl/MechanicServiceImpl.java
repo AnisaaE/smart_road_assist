@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.smartassist.mechanic.dto.request.CreateMechanicRequest;
+import com.smartassist.mechanic.dto.request.UpdateMechanicLocationRequest;
 import com.smartassist.mechanic.dto.request.UpdateMechanicStatusRequest;
 import com.smartassist.mechanic.dto.request.UpdateMechanicRequest;
 import com.smartassist.mechanic.dto.response.MechanicResponse;
@@ -63,6 +64,15 @@ public class MechanicServiceImpl implements MechanicService {
         findMechanicById(id);
         MechanicLiveState liveState = findOrCreateLiveState(id);
         liveState.setStatus(request.status());
+        return mechanicMapper.toStateResponse(mechanicLiveStateRepository.save(liveState));
+    }
+
+    @Override
+    public MechanicStateResponse updateMechanicLocation(String id, UpdateMechanicLocationRequest request) {
+        findMechanicById(id);
+        MechanicLiveState liveState = findOrCreateLiveState(id);
+        liveState.setLatitude(request.latitude());
+        liveState.setLongitude(request.longitude());
         return mechanicMapper.toStateResponse(mechanicLiveStateRepository.save(liveState));
     }
 

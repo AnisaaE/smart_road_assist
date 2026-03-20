@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.smartassist.mechanic.dto.request.CreateMechanicRequest;
+import com.smartassist.mechanic.dto.request.UpdateMechanicLocationRequest;
 import com.smartassist.mechanic.dto.request.UpdateMechanicStatusRequest;
 import com.smartassist.mechanic.dto.request.UpdateMechanicRequest;
 import com.smartassist.mechanic.dto.response.MechanicResponse;
@@ -31,6 +32,7 @@ public class MechanicController {
     static final String MECHANICS_PATH = "/mechanics";
     private static final String MECHANIC_ID_PATH = "/{id}";
     private static final String MECHANIC_STATUS_PATH = MECHANIC_ID_PATH + "/status";
+    private static final String MECHANIC_LOCATION_PATH = MECHANIC_ID_PATH + "/location";
 
     private final MechanicService mechanicService;
 
@@ -59,6 +61,12 @@ public class MechanicController {
     public MechanicStateResponse updateMechanicStatus(@PathVariable String id,
                                                       @RequestBody UpdateMechanicStatusRequest request) {
         return mechanicService.updateMechanicStatus(id, request);
+    }
+
+    @PutMapping(MECHANIC_LOCATION_PATH)
+    public MechanicStateResponse updateMechanicLocation(@PathVariable String id,
+                                                        @RequestBody UpdateMechanicLocationRequest request) {
+        return mechanicService.updateMechanicLocation(id, request);
     }
 
     @PostMapping

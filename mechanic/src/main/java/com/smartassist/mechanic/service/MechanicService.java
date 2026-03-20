@@ -3,6 +3,7 @@ package com.smartassist.mechanic.service;
 import java.util.List;
 
 import com.smartassist.mechanic.dto.request.CreateMechanicRequest;
+import com.smartassist.mechanic.dto.request.UpdateMechanicLocationRequest;
 import com.smartassist.mechanic.dto.request.UpdateMechanicStatusRequest;
 import com.smartassist.mechanic.dto.request.UpdateMechanicRequest;
 import com.smartassist.mechanic.dto.response.MechanicResponse;
@@ -21,4 +22,6 @@ public interface MechanicService {
     void deleteMechanic(String id);
 
     MechanicStateResponse updateMechanicStatus(String id, UpdateMechanicStatusRequest request);
+
+    MechanicStateResponse updateMechanicLocation(String id, UpdateMechanicLocationRequest request);
 }
