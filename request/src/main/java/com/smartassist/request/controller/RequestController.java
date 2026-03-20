@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.smartassist.request.dto.request.AssignMechanicRequest;
 import com.smartassist.request.dto.request.CreateRequestRequest;
+import com.smartassist.request.dto.request.UpdateRequestStatusRequest;
 import com.smartassist.request.dto.request.UpdateRequestRequest;
 import com.smartassist.request.dto.response.RequestResponse;
 import com.smartassist.request.service.RequestService;
@@ -30,6 +31,7 @@ public class RequestController {
     static final String REQUESTS_PATH = "/requests";
     private static final String REQUEST_ID_PATH = "/{id}";
     private static final String ASSIGN_PATH = REQUEST_ID_PATH + "/assign";
+    private static final String STATUS_PATH = REQUEST_ID_PATH + "/status";
 
     private final RequestService requestService;
 
@@ -57,6 +59,11 @@ public class RequestController {
     @PutMapping(ASSIGN_PATH)
     public RequestResponse assignMechanic(@PathVariable String id, @RequestBody AssignMechanicRequest request) {
         return requestService.assignMechanic(id, request);
+    }
+
+    @PutMapping(STATUS_PATH)
+    public RequestResponse updateStatus(@PathVariable String id, @RequestBody UpdateRequestStatusRequest request) {
+        return requestService.updateStatus(id, request);
     }
 
     @PostMapping
