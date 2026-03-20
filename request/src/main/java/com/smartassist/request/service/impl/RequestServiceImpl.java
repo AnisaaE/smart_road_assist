@@ -89,9 +89,22 @@ public class RequestServiceImpl implements RequestService {
     }
 
     private void validateStatusTransition(RequestStatus currentStatus, RequestStatus newStatus) {
-        if (currentStatus == RequestStatus.DONE && newStatus == RequestStatus.IN_PROGRESS) {
+        if (!isAllowedTransition(currentStatus, newStatus)) {
             throw new InvalidRequestStateException(buildInvalidTransitionMessage(currentStatus, newStatus));
         }
+    }
+
+    private boolean isAllowedTransition(RequestStatus currentStatus, RequestStatus newStatus) {
+        if (currentStatus == newStatus) {
+            return true;
+        }
+
+        return switch (currentStatus) {
+            case CREATED -> newStatus == RequestStatus.ASSIGNED || newStatus == RequestStatus.CANCELLED;
+            case ASSIGNED -> newStatus == RequestStatus.IN_PROGRESS || newStatus == RequestStatus.CANCELLED;
+            case IN_PROGRESS -> newStatus == RequestStatus.DONE || newStatus == RequestStatus.CANCELLED;
+            case DONE, CANCELLED -> false;
+        };
     }
 
     private String buildInvalidTransitionMessage(RequestStatus currentStatus, RequestStatus newStatus) {
