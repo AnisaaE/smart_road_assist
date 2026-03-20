@@ -89,7 +89,11 @@ public class RequestServiceImpl implements RequestService {
 
     private void validateStatusTransition(RequestStatus currentStatus, RequestStatus newStatus) {
         if (currentStatus == RequestStatus.DONE && newStatus == RequestStatus.IN_PROGRESS) {
-            throw new InvalidRequestStateException("Cannot change request status from DONE to IN_PROGRESS");
+            throw new InvalidRequestStateException(buildInvalidTransitionMessage(currentStatus, newStatus));
         }
+    }
+
+    private String buildInvalidTransitionMessage(RequestStatus currentStatus, RequestStatus newStatus) {
+        return "Cannot change request status from " + currentStatus + " to " + newStatus;
     }
 }
