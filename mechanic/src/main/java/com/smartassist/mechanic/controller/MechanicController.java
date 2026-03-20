@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,12 +24,18 @@ import lombok.RequiredArgsConstructor;
 public class MechanicController {
 
     static final String MECHANICS_PATH = "/mechanics";
+    private static final String MECHANIC_ID_PATH = "/{id}";
 
     private final MechanicService mechanicService;
 
     @GetMapping
     public List<MechanicResponse> getAllMechanics() {
         return mechanicService.getAllMechanics();
+    }
+
+    @GetMapping(MECHANIC_ID_PATH)
+    public MechanicResponse getMechanicById(@PathVariable String id) {
+        return mechanicService.getMechanicById(id);
     }
 
     @PostMapping

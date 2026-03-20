@@ -32,4 +32,9 @@ public class MechanicServiceImpl implements MechanicService {
     public List<MechanicResponse> getAllMechanics() {
         return mechanicMapper.toResponseList(mechanicRepository.findAll());
     }
+
+    @Override
+    public MechanicResponse getMechanicById(String id) {
+        return mechanicMapper.toResponse(mechanicRepository.findById(id).get());
+    }
 }

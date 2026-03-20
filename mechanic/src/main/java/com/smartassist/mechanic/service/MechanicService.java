@@ -10,4 +10,6 @@ public interface MechanicService {
     MechanicResponse createMechanic(CreateMechanicRequest request);
 
     List<MechanicResponse> getAllMechanics();
+
+    MechanicResponse getMechanicById(String id);
 }
