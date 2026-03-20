@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.smartassist.request.dto.response.RequestResponse;
+import com.smartassist.request.exception.InvalidRequestStateException;
 import com.smartassist.request.model.RequestStatus;
 import com.smartassist.request.model.RequestType;
 import com.smartassist.request.service.RequestService;
@@ -51,5 +52,21 @@ class RequestControllerUpdateStatusTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("IN_PROGRESS"))
                 .andExpect(jsonPath("$.mechanicId").value("mech-42"));
+    }
+
+    @Test
+    void updateStatusShouldReturnConflictForInvalidTransition() throws Exception {
+        when(requestService.updateStatus(any(), any()))
+                .thenThrow(new InvalidRequestStateException("Cannot change request status from DONE to IN_PROGRESS"));
+
+        mockMvc.perform(put("/requests/req-1/status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "status": "IN_PROGRESS"
+                                }
+                                """))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Cannot change request status from DONE to IN_PROGRESS"));
     }
 }
