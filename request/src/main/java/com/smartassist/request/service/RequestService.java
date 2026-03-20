@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.smartassist.request.dto.request.CreateRequestRequest;
 import com.smartassist.request.dto.request.AssignMechanicRequest;
+import com.smartassist.request.dto.request.UpdateRequestStatusRequest;
 import com.smartassist.request.dto.request.UpdateRequestRequest;
 import com.smartassist.request.dto.response.RequestResponse;
 
@@ -20,4 +21,6 @@ public interface RequestService {
     void deleteRequest(String id);
 
     RequestResponse assignMechanic(String id, AssignMechanicRequest request);
+
+    RequestResponse updateStatus(String id, UpdateRequestStatusRequest request);
 }

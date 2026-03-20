@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.smartassist.request.dto.request.AssignMechanicRequest;
 import com.smartassist.request.dto.request.CreateRequestRequest;
+import com.smartassist.request.dto.request.UpdateRequestStatusRequest;
 import com.smartassist.request.dto.request.UpdateRequestRequest;
 import com.smartassist.request.dto.response.RequestResponse;
 import com.smartassist.request.mapper.RequestMapper;
@@ -60,6 +61,15 @@ public class RequestServiceImpl implements RequestService {
     public RequestResponse assignMechanic(String id, AssignMechanicRequest request) {
         AssistanceRequest existingRequest = findRequestOrThrow(id);
         requestMapper.applyAssignment(existingRequest, request);
+
+        AssistanceRequest updatedRequest = requestRepository.save(existingRequest);
+        return requestMapper.toResponse(updatedRequest);
+    }
+
+    @Override
+    public RequestResponse updateStatus(String id, UpdateRequestStatusRequest request) {
+        AssistanceRequest existingRequest = findRequestOrThrow(id);
+        existingRequest.setStatus(request.status());
 
         AssistanceRequest updatedRequest = requestRepository.save(existingRequest);
         return requestMapper.toResponse(updatedRequest);
