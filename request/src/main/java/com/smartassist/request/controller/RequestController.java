@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.smartassist.request.dto.request.AssignMechanicRequest;
 import com.smartassist.request.dto.request.CreateRequestRequest;
 import com.smartassist.request.dto.request.UpdateRequestRequest;
 import com.smartassist.request.dto.response.RequestResponse;
@@ -50,6 +51,11 @@ public class RequestController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteRequest(@PathVariable String id) {
         requestService.deleteRequest(id);
+    }
+
+    @PutMapping(REQUEST_ID_PATH + "/assign")
+    public RequestResponse assignMechanic(@PathVariable String id, @RequestBody AssignMechanicRequest request) {
+        return requestService.assignMechanic(id, request);
     }
 
     @PostMapping
