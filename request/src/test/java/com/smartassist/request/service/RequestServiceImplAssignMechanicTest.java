@@ -1,8 +1,10 @@
 package com.smartassist.request.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -18,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.smartassist.request.dto.request.AssignMechanicRequest;
 import com.smartassist.request.dto.response.RequestResponse;
+import com.smartassist.request.exception.InvalidRequestStateException;
 import com.smartassist.request.mapper.RequestMapper;
 import com.smartassist.request.model.AssistanceRequest;
 import com.smartassist.request.model.RequestStatus;
@@ -83,5 +86,26 @@ class RequestServiceImplAssignMechanicTest {
         assertThat(savedRequest.getStatus()).isEqualTo(RequestStatus.ASSIGNED);
         assertThat(response.mechanicId()).isEqualTo("mech-42");
         assertThat(response.status()).isEqualTo(RequestStatus.ASSIGNED);
+    }
+
+    @Test
+    void assignMechanicShouldRejectCancelledRequest() {
+        AssistanceRequest existingRequest = AssistanceRequest.builder()
+                .id("req-1")
+                .userId("user-123")
+                .type(RequestType.BATTERY)
+                .description("Battery is dead")
+                .location("Downtown garage")
+                .status(RequestStatus.CANCELLED)
+                .createdAt(Instant.parse("2026-03-20T10:15:30Z"))
+                .build();
+
+        when(requestRepository.findById("req-1")).thenReturn(Optional.of(existingRequest));
+
+        assertThatThrownBy(() -> requestService.assignMechanic("req-1", new AssignMechanicRequest("mech-42")))
+                .isInstanceOf(InvalidRequestStateException.class)
+                .hasMessage("Cannot assign mechanic to request with status CANCELLED");
+
+        verify(requestRepository, never()).save(any(AssistanceRequest.class));
     }
 }
