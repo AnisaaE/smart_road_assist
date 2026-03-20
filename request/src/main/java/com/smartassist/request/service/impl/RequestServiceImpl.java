@@ -50,6 +50,12 @@ public class RequestServiceImpl implements RequestService {
         return requestMapper.toResponse(updatedRequest);
     }
 
+    @Override
+    public void deleteRequest(String id) {
+        AssistanceRequest request = findRequestOrThrow(id);
+        requestRepository.delete(request);
+    }
+
     private AssistanceRequest findRequestOrThrow(String id) {
         return requestRepository.findById(id)
                 .orElseThrow(() -> new RequestNotFoundException(buildNotFoundMessage(id)));

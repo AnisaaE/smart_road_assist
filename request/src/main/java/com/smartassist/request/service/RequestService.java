@@ -15,4 +15,6 @@ public interface RequestService {
     RequestResponse getRequestById(String id);
 
     RequestResponse updateRequest(String id, UpdateRequestRequest request);
+
+    void deleteRequest(String id);
 }
