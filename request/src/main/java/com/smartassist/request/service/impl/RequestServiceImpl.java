@@ -1,6 +1,7 @@
 package com.smartassist.request.service.impl;
 
 import java.time.Instant;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -26,5 +27,13 @@ public class RequestServiceImpl implements RequestService {
         AssistanceRequest assistanceRequest = requestMapper.toEntity(request, Instant.now());
         AssistanceRequest savedRequest = requestRepository.save(assistanceRequest);
         return requestMapper.toResponse(savedRequest);
+    }
+
+    @Override
+    public List<RequestResponse> getAllRequests() {
+        return requestRepository.findAll()
+                .stream()
+                .map(requestMapper::toResponse)
+                .toList();
     }
 }

@@ -1,6 +1,7 @@
 package com.smartassist.request.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,8 @@ import com.smartassist.request.service.RequestService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(RequestController.REQUESTS_PATH)
 @RequiredArgsConstructor
@@ -22,6 +25,11 @@ public class RequestController {
     static final String REQUESTS_PATH = "/requests";
 
     private final RequestService requestService;
+
+    @GetMapping
+    public List<RequestResponse> getAllRequests() {
+        return requestService.getAllRequests();
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
