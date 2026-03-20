@@ -24,6 +24,8 @@ import com.smartassist.request.service.RequestService;
 @WebMvcTest(RequestController.class)
 class RequestControllerUpdateStatusTest {
 
+    private static final String UPDATE_STATUS_PATH = "/requests/req-1/status";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -42,7 +44,7 @@ class RequestControllerUpdateStatusTest {
                 "mech-42",
                 Instant.parse("2026-03-20T10:15:30Z")));
 
-        mockMvc.perform(put("/requests/req-1/status")
+        mockMvc.perform(put(UPDATE_STATUS_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -59,7 +61,7 @@ class RequestControllerUpdateStatusTest {
         when(requestService.updateStatus(any(), any()))
                 .thenThrow(new InvalidRequestStateException("Cannot change request status from DONE to IN_PROGRESS"));
 
-        mockMvc.perform(put("/requests/req-1/status")
+        mockMvc.perform(put(UPDATE_STATUS_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
