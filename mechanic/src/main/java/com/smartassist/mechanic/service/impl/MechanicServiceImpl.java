@@ -41,6 +41,10 @@ public class MechanicServiceImpl implements MechanicService {
 
     private MechanicProfile findMechanicById(String id) {
         return mechanicRepository.findById(id)
-                .orElseThrow(() -> new MechanicNotFoundException("Mechanic not found: " + id));
+                .orElseThrow(() -> new MechanicNotFoundException(buildMechanicNotFoundMessage(id)));
+    }
+
+    private String buildMechanicNotFoundMessage(String id) {
+        return "Mechanic not found: " + id;
     }
 }
