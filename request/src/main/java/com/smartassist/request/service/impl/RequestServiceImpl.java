@@ -43,6 +43,10 @@ public class RequestServiceImpl implements RequestService {
 
     private AssistanceRequest findRequestOrThrow(String id) {
         return requestRepository.findById(id)
-                .orElseThrow(() -> new RequestNotFoundException("Request not found: " + id));
+                .orElseThrow(() -> new RequestNotFoundException(buildNotFoundMessage(id)));
+    }
+
+    private String buildNotFoundMessage(String id) {
+        return "Request not found: " + id;
     }
 }
