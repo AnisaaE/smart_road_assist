@@ -23,7 +23,7 @@ class RedisConfigTest {
 
             @SuppressWarnings("unchecked")
             RedisTemplate<String, MechanicLiveState> redisTemplate = context.getBean(
-                    "mechanicLiveStateRedisTemplate",
+                    RedisConfig.MECHANIC_LIVE_STATE_REDIS_TEMPLATE,
                     RedisTemplate.class);
 
             assertThat(redisTemplate.getKeySerializer()).isInstanceOf(StringRedisSerializer.class);
