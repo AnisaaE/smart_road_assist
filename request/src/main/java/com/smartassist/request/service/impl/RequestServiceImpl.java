@@ -1,6 +1,7 @@
 package com.smartassist.request.service.impl;
 
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -99,11 +100,15 @@ public class RequestServiceImpl implements RequestService {
             return true;
         }
 
+        return allowedNextStatuses(currentStatus).contains(newStatus);
+    }
+
+    private EnumSet<RequestStatus> allowedNextStatuses(RequestStatus currentStatus) {
         return switch (currentStatus) {
-            case CREATED -> newStatus == RequestStatus.ASSIGNED || newStatus == RequestStatus.CANCELLED;
-            case ASSIGNED -> newStatus == RequestStatus.IN_PROGRESS || newStatus == RequestStatus.CANCELLED;
-            case IN_PROGRESS -> newStatus == RequestStatus.DONE || newStatus == RequestStatus.CANCELLED;
-            case DONE, CANCELLED -> false;
+            case CREATED -> EnumSet.of(RequestStatus.ASSIGNED, RequestStatus.CANCELLED);
+            case ASSIGNED -> EnumSet.of(RequestStatus.IN_PROGRESS, RequestStatus.CANCELLED);
+            case IN_PROGRESS -> EnumSet.of(RequestStatus.DONE, RequestStatus.CANCELLED);
+            case DONE, CANCELLED -> EnumSet.noneOf(RequestStatus.class);
         };
     }
 
