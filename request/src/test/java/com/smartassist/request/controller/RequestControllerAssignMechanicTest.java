@@ -52,4 +52,17 @@ class RequestControllerAssignMechanicTest {
                 .andExpect(jsonPath("$.mechanicId").value("mech-42"))
                 .andExpect(jsonPath("$.status").value("ASSIGNED"));
     }
+
+    @Test
+    void assignMechanicShouldRejectBlankMechanicId() throws Exception {
+        mockMvc.perform(put("/requests/req-1/assign")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "mechanicId": ""
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Request validation failed"));
+    }
 }
