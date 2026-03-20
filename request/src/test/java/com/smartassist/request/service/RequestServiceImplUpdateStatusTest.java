@@ -1,8 +1,10 @@
 package com.smartassist.request.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.smartassist.request.dto.request.UpdateRequestStatusRequest;
+import com.smartassist.request.exception.InvalidRequestStateException;
 import com.smartassist.request.dto.response.RequestResponse;
 import com.smartassist.request.mapper.RequestMapper;
 import com.smartassist.request.model.AssistanceRequest;
@@ -82,5 +85,29 @@ class RequestServiceImplUpdateStatusTest {
         assertThat(savedRequest.getStatus()).isEqualTo(RequestStatus.IN_PROGRESS);
         assertThat(savedRequest.getMechanicId()).isEqualTo("mech-42");
         assertThat(response.status()).isEqualTo(RequestStatus.IN_PROGRESS);
+    }
+
+    @Test
+    void updateStatusShouldRejectTransitionFromDoneToInProgress() {
+        AssistanceRequest existingRequest = AssistanceRequest.builder()
+                .id("req-1")
+                .userId("user-123")
+                .type(RequestType.BATTERY)
+                .description("Battery is dead")
+                .location("Downtown garage")
+                .status(RequestStatus.DONE)
+                .mechanicId("mech-42")
+                .createdAt(Instant.parse("2026-03-20T10:15:30Z"))
+                .build();
+
+        when(requestRepository.findById("req-1")).thenReturn(Optional.of(existingRequest));
+
+        assertThatThrownBy(() -> requestService.updateStatus(
+                "req-1",
+                new UpdateRequestStatusRequest(RequestStatus.IN_PROGRESS)))
+                .isInstanceOf(InvalidRequestStateException.class)
+                .hasMessage("Cannot change request status from DONE to IN_PROGRESS");
+
+        verify(requestRepository, never()).save(any(AssistanceRequest.class));
     }
 }
