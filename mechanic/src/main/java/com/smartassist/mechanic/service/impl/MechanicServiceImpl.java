@@ -6,12 +6,16 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.smartassist.mechanic.dto.request.CreateMechanicRequest;
+import com.smartassist.mechanic.dto.request.UpdateMechanicStatusRequest;
 import com.smartassist.mechanic.dto.request.UpdateMechanicRequest;
 import com.smartassist.mechanic.dto.response.MechanicResponse;
+import com.smartassist.mechanic.dto.response.MechanicStateResponse;
 import com.smartassist.mechanic.exception.MechanicNotFoundException;
 import com.smartassist.mechanic.mapper.MechanicMapper;
+import com.smartassist.mechanic.model.MechanicLiveState;
 import com.smartassist.mechanic.model.MechanicProfile;
 import com.smartassist.mechanic.repository.MechanicRepository;
+import com.smartassist.mechanic.repository.MechanicLiveStateRepository;
 import com.smartassist.mechanic.service.MechanicService;
 
 import lombok.RequiredArgsConstructor;
@@ -21,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class MechanicServiceImpl implements MechanicService {
 
     private final MechanicRepository mechanicRepository;
+    private final MechanicLiveStateRepository mechanicLiveStateRepository;
     private final MechanicMapper mechanicMapper;
 
     @Override
@@ -51,6 +56,15 @@ public class MechanicServiceImpl implements MechanicService {
     public void deleteMechanic(String id) {
         MechanicProfile mechanicProfile = findMechanicById(id);
         mechanicRepository.delete(mechanicProfile);
+    }
+
+    @Override
+    public MechanicStateResponse updateMechanicStatus(String id, UpdateMechanicStatusRequest request) {
+        findMechanicById(id);
+        MechanicLiveState liveState = mechanicLiveStateRepository.findById(id)
+                .orElse(MechanicLiveState.builder().mechanicId(id).build());
+        liveState.setStatus(request.status());
+        return mechanicMapper.toStateResponse(mechanicLiveStateRepository.save(liveState));
     }
 
     private MechanicProfile findMechanicById(String id) {

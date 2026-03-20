@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.smartassist.mechanic.dto.request.CreateMechanicRequest;
+import com.smartassist.mechanic.dto.request.UpdateMechanicStatusRequest;
 import com.smartassist.mechanic.dto.request.UpdateMechanicRequest;
 import com.smartassist.mechanic.dto.response.MechanicResponse;
+import com.smartassist.mechanic.dto.response.MechanicStateResponse;
 import com.smartassist.mechanic.service.MechanicService;
 
 import jakarta.validation.Valid;
@@ -28,6 +30,7 @@ public class MechanicController {
 
     static final String MECHANICS_PATH = "/mechanics";
     private static final String MECHANIC_ID_PATH = "/{id}";
+    private static final String MECHANIC_STATUS_PATH = MECHANIC_ID_PATH + "/status";
 
     private final MechanicService mechanicService;
 
@@ -50,6 +53,12 @@ public class MechanicController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteMechanic(@PathVariable String id) {
         mechanicService.deleteMechanic(id);
+    }
+
+    @PutMapping(MECHANIC_STATUS_PATH)
+    public MechanicStateResponse updateMechanicStatus(@PathVariable String id,
+                                                      @RequestBody UpdateMechanicStatusRequest request) {
+        return mechanicService.updateMechanicStatus(id, request);
     }
 
     @PostMapping
