@@ -2,6 +2,7 @@ package com.smartassist.mechanic.service.impl;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.springframework.stereotype.Service;
 
@@ -61,19 +62,15 @@ public class MechanicServiceImpl implements MechanicService {
 
     @Override
     public MechanicStateResponse updateMechanicStatus(String id, UpdateMechanicStatusRequest request) {
-        findMechanicById(id);
-        MechanicLiveState liveState = findOrCreateLiveState(id);
-        liveState.setStatus(request.status());
-        return mechanicMapper.toStateResponse(mechanicLiveStateRepository.save(liveState));
+        return updateLiveState(id, liveState -> liveState.setStatus(request.status()));
     }
 
     @Override
     public MechanicStateResponse updateMechanicLocation(String id, UpdateMechanicLocationRequest request) {
-        findMechanicById(id);
-        MechanicLiveState liveState = findOrCreateLiveState(id);
-        liveState.setLatitude(request.latitude());
-        liveState.setLongitude(request.longitude());
-        return mechanicMapper.toStateResponse(mechanicLiveStateRepository.save(liveState));
+        return updateLiveState(id, liveState -> {
+            liveState.setLatitude(request.latitude());
+            liveState.setLongitude(request.longitude());
+        });
     }
 
     private MechanicProfile findMechanicById(String id) {
@@ -88,5 +85,12 @@ public class MechanicServiceImpl implements MechanicService {
     private MechanicLiveState findOrCreateLiveState(String id) {
         return mechanicLiveStateRepository.findById(id)
                 .orElse(MechanicLiveState.builder().mechanicId(id).build());
+    }
+
+    private MechanicStateResponse updateLiveState(String id, Consumer<MechanicLiveState> stateUpdater) {
+        findMechanicById(id);
+        MechanicLiveState liveState = findOrCreateLiveState(id);
+        stateUpdater.accept(liveState);
+        return mechanicMapper.toStateResponse(mechanicLiveStateRepository.save(liveState));
     }
 }
