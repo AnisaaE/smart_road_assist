@@ -26,6 +26,7 @@ import java.util.List;
 public class RequestController {
 
     static final String REQUESTS_PATH = "/requests";
+    private static final String REQUEST_BY_ID_PATH = "/{id}";
 
     private final RequestService requestService;
 
@@ -34,12 +35,12 @@ public class RequestController {
         return requestService.getAllRequests();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(REQUEST_BY_ID_PATH)
     public RequestResponse getRequestById(@PathVariable String id) {
         return requestService.getRequestById(id);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(REQUEST_BY_ID_PATH)
     public RequestResponse updateRequest(@PathVariable String id, @RequestBody UpdateRequestRequest request) {
         return requestService.updateRequest(id, request);
     }
