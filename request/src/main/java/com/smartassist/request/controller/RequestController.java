@@ -57,7 +57,7 @@ public class RequestController {
     }
 
     @PutMapping(ASSIGN_PATH)
-    public RequestResponse assignMechanic(@PathVariable String id, @RequestBody AssignMechanicRequest request) {
+    public RequestResponse assignMechanic(@PathVariable String id, @Valid @RequestBody AssignMechanicRequest request) {
         return requestService.assignMechanic(id, request);
     }
 

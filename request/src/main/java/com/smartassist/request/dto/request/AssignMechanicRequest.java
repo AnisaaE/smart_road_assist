@@ -1,4 +1,6 @@
 package com.smartassist.request.dto.request;
 
-public record AssignMechanicRequest(String mechanicId) {
+import jakarta.validation.constraints.NotBlank;
+
+public record AssignMechanicRequest(@NotBlank(message = "mechanicId is required") String mechanicId) {
 }
