@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.smartassist.request.dto.request.CreateRequestRequest;
+import com.smartassist.request.dto.request.UpdateRequestRequest;
 import com.smartassist.request.dto.response.RequestResponse;
 import com.smartassist.request.model.AssistanceRequest;
 import com.smartassist.request.model.RequestStatus;
@@ -40,5 +41,11 @@ public class RequestMapper {
         return requests.stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    public void applyUpdate(AssistanceRequest request, UpdateRequestRequest updateRequest) {
+        request.setType(updateRequest.type());
+        request.setDescription(updateRequest.description());
+        request.setLocation(updateRequest.location());
     }
 }

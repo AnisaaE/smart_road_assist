@@ -44,9 +44,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public RequestResponse updateRequest(String id, UpdateRequestRequest request) {
         AssistanceRequest existingRequest = findRequestOrThrow(id);
-        existingRequest.setType(request.type());
-        existingRequest.setDescription(request.description());
-        existingRequest.setLocation(request.location());
+        requestMapper.applyUpdate(existingRequest, request);
 
         AssistanceRequest updatedRequest = requestRepository.save(existingRequest);
         return requestMapper.toResponse(updatedRequest);
