@@ -5,12 +5,14 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.smartassist.request.dto.request.AssignMechanicRequest;
 import com.smartassist.request.dto.request.CreateRequestRequest;
 import com.smartassist.request.dto.request.UpdateRequestRequest;
 import com.smartassist.request.dto.response.RequestResponse;
 import com.smartassist.request.mapper.RequestMapper;
 import com.smartassist.request.exception.RequestNotFoundException;
 import com.smartassist.request.model.AssistanceRequest;
+import com.smartassist.request.model.RequestStatus;
 import com.smartassist.request.repository.RequestRepository;
 import com.smartassist.request.service.RequestService;
 
@@ -53,6 +55,16 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public void deleteRequest(String id) {
         requestRepository.delete(findRequestOrThrow(id));
+    }
+
+    @Override
+    public RequestResponse assignMechanic(String id, AssignMechanicRequest request) {
+        AssistanceRequest existingRequest = findRequestOrThrow(id);
+        existingRequest.setMechanicId(request.mechanicId());
+        existingRequest.setStatus(RequestStatus.ASSIGNED);
+
+        AssistanceRequest updatedRequest = requestRepository.save(existingRequest);
+        return requestMapper.toResponse(updatedRequest);
     }
 
     private AssistanceRequest findRequestOrThrow(String id) {
