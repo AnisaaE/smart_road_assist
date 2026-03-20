@@ -2,6 +2,7 @@ package com.smartassist.request.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -52,6 +53,13 @@ class RequestServiceImplAssignMechanicTest {
 
         when(requestRepository.findById("req-1")).thenReturn(Optional.of(existingRequest));
         when(requestRepository.save(any(AssistanceRequest.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        doAnswer(invocation -> {
+            AssistanceRequest requestToAssign = invocation.getArgument(0);
+            AssignMechanicRequest mechanicRequest = invocation.getArgument(1);
+            requestToAssign.setMechanicId(mechanicRequest.mechanicId());
+            requestToAssign.setStatus(RequestStatus.ASSIGNED);
+            return null;
+        }).when(requestMapper).applyAssignment(any(AssistanceRequest.class), any(AssignMechanicRequest.class));
         when(requestMapper.toResponse(any(AssistanceRequest.class))).thenAnswer(invocation -> {
             AssistanceRequest saved = invocation.getArgument(0);
             return new RequestResponse(

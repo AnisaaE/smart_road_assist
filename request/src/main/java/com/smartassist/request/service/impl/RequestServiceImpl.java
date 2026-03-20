@@ -12,7 +12,6 @@ import com.smartassist.request.dto.response.RequestResponse;
 import com.smartassist.request.mapper.RequestMapper;
 import com.smartassist.request.exception.RequestNotFoundException;
 import com.smartassist.request.model.AssistanceRequest;
-import com.smartassist.request.model.RequestStatus;
 import com.smartassist.request.repository.RequestRepository;
 import com.smartassist.request.service.RequestService;
 
@@ -60,8 +59,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public RequestResponse assignMechanic(String id, AssignMechanicRequest request) {
         AssistanceRequest existingRequest = findRequestOrThrow(id);
-        existingRequest.setMechanicId(request.mechanicId());
-        existingRequest.setStatus(RequestStatus.ASSIGNED);
+        requestMapper.applyAssignment(existingRequest, request);
 
         AssistanceRequest updatedRequest = requestRepository.save(existingRequest);
         return requestMapper.toResponse(updatedRequest);

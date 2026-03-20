@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.smartassist.request.dto.request.AssignMechanicRequest;
 import com.smartassist.request.dto.request.CreateRequestRequest;
 import com.smartassist.request.dto.request.UpdateRequestRequest;
 import com.smartassist.request.dto.response.RequestResponse;
@@ -47,5 +48,10 @@ public class RequestMapper {
         request.setType(updateRequest.type());
         request.setDescription(updateRequest.description());
         request.setLocation(updateRequest.location());
+    }
+
+    public void applyAssignment(AssistanceRequest request, AssignMechanicRequest assignRequest) {
+        request.setMechanicId(assignRequest.mechanicId());
+        request.setStatus(RequestStatus.ASSIGNED);
     }
 }
