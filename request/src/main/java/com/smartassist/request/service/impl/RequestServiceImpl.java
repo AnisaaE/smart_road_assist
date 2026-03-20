@@ -33,4 +33,11 @@ public class RequestServiceImpl implements RequestService {
     public List<RequestResponse> getAllRequests() {
         return requestMapper.toResponseList(requestRepository.findAll());
     }
+
+    @Override
+    public RequestResponse getRequestById(String id) {
+        return requestRepository.findById(id)
+                .map(requestMapper::toResponse)
+                .orElse(null);
+    }
 }

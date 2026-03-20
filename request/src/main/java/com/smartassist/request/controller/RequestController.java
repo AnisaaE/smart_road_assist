@@ -2,6 +2,7 @@ package com.smartassist.request.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +30,11 @@ public class RequestController {
     @GetMapping
     public List<RequestResponse> getAllRequests() {
         return requestService.getAllRequests();
+    }
+
+    @GetMapping("/{id}")
+    public RequestResponse getRequestById(@PathVariable String id) {
+        return requestService.getRequestById(id);
     }
 
     @PostMapping

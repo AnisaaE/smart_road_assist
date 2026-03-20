@@ -10,4 +10,6 @@ public interface RequestService {
     RequestResponse createRequest(CreateRequestRequest request);
 
     List<RequestResponse> getAllRequests();
+
+    RequestResponse getRequestById(String id);
 }
