@@ -36,8 +36,11 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public RequestResponse getRequestById(String id) {
-        return requestRepository.findById(id)
-                .map(requestMapper::toResponse)
-                .orElse(null);
+        AssistanceRequest request = findRequestOrNull(id);
+        return request == null ? null : requestMapper.toResponse(request);
+    }
+
+    private AssistanceRequest findRequestOrNull(String id) {
+        return requestRepository.findById(id).orElse(null);
     }
 }
