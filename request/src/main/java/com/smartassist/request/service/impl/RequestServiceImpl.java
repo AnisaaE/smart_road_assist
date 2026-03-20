@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.smartassist.request.dto.request.CreateRequestRequest;
 import com.smartassist.request.dto.response.RequestResponse;
 import com.smartassist.request.mapper.RequestMapper;
+import com.smartassist.request.exception.RequestNotFoundException;
 import com.smartassist.request.model.AssistanceRequest;
 import com.smartassist.request.model.RequestStatus;
 import com.smartassist.request.repository.RequestRepository;
@@ -36,11 +37,12 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public RequestResponse getRequestById(String id) {
-        AssistanceRequest request = findRequestOrNull(id);
-        return request == null ? null : requestMapper.toResponse(request);
+        AssistanceRequest request = findRequestOrThrow(id);
+        return requestMapper.toResponse(request);
     }
 
-    private AssistanceRequest findRequestOrNull(String id) {
-        return requestRepository.findById(id).orElse(null);
+    private AssistanceRequest findRequestOrThrow(String id) {
+        return requestRepository.findById(id)
+                .orElseThrow(() -> new RequestNotFoundException("Request not found: " + id));
     }
 }
