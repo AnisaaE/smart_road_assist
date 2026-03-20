@@ -49,7 +49,8 @@ public class MechanicServiceImpl implements MechanicService {
 
     @Override
     public void deleteMechanic(String id) {
-        mechanicRepository.delete(findMechanicById(id));
+        MechanicProfile mechanicProfile = findMechanicById(id);
+        mechanicRepository.delete(mechanicProfile);
     }
 
     private MechanicProfile findMechanicById(String id) {
