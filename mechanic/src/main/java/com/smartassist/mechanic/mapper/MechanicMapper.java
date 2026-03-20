@@ -1,6 +1,7 @@
 package com.smartassist.mechanic.mapper;
 
 import java.time.Instant;
+import java.util.List;
 
 import org.springframework.stereotype.Component;
 
@@ -15,7 +16,7 @@ public class MechanicMapper {
         return MechanicProfile.builder()
                 .name(request.name())
                 .phoneNumber(request.phoneNumber())
-                .specialties(request.specialties())
+                .specialties(copySpecialties(request.specialties()))
                 .serviceArea(request.serviceArea())
                 .createdAt(createdAt)
                 .build();
@@ -26,8 +27,12 @@ public class MechanicMapper {
                 profile.getId(),
                 profile.getName(),
                 profile.getPhoneNumber(),
-                profile.getSpecialties(),
+                copySpecialties(profile.getSpecialties()),
                 profile.getServiceArea(),
                 profile.getCreatedAt());
+    }
+
+    private List<String> copySpecialties(List<String> specialties) {
+        return specialties == null ? List.of() : List.copyOf(specialties);
     }
 }
