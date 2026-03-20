@@ -4,12 +4,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.smartassist.request.dto.request.CreateRequestRequest;
+import com.smartassist.request.dto.request.UpdateRequestRequest;
 import com.smartassist.request.dto.response.RequestResponse;
 import com.smartassist.request.service.RequestService;
 
@@ -35,6 +37,11 @@ public class RequestController {
     @GetMapping("/{id}")
     public RequestResponse getRequestById(@PathVariable String id) {
         return requestService.getRequestById(id);
+    }
+
+    @PutMapping("/{id}")
+    public RequestResponse updateRequest(@PathVariable String id, @RequestBody UpdateRequestRequest request) {
+        return requestService.updateRequest(id, request);
     }
 
     @PostMapping
