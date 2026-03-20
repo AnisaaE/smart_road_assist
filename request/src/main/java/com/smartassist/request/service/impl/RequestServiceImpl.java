@@ -62,6 +62,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public RequestResponse assignMechanic(String id, AssignMechanicRequest request) {
         AssistanceRequest existingRequest = findRequestOrThrow(id);
+        validateAssignment(existingRequest);
         requestMapper.applyAssignment(existingRequest, request);
 
         AssistanceRequest updatedRequest = requestRepository.save(existingRequest);
@@ -95,5 +96,11 @@ public class RequestServiceImpl implements RequestService {
 
     private String buildInvalidTransitionMessage(RequestStatus currentStatus, RequestStatus newStatus) {
         return "Cannot change request status from " + currentStatus + " to " + newStatus;
+    }
+
+    private void validateAssignment(AssistanceRequest request) {
+        if (request.getStatus() == RequestStatus.CANCELLED) {
+            throw new InvalidRequestStateException("Cannot assign mechanic to request with status CANCELLED");
+        }
     }
 }
