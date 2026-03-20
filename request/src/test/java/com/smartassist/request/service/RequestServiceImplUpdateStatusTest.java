@@ -2,6 +2,7 @@ package com.smartassist.request.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -53,6 +54,12 @@ class RequestServiceImplUpdateStatusTest {
 
         when(requestRepository.findById("req-1")).thenReturn(Optional.of(existingRequest));
         when(requestRepository.save(any(AssistanceRequest.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        doAnswer(invocation -> {
+            AssistanceRequest requestToUpdate = invocation.getArgument(0);
+            UpdateRequestStatusRequest updateRequest = invocation.getArgument(1);
+            requestToUpdate.setStatus(updateRequest.status());
+            return null;
+        }).when(requestMapper).applyStatusUpdate(any(AssistanceRequest.class), any(UpdateRequestStatusRequest.class));
         when(requestMapper.toResponse(any(AssistanceRequest.class))).thenAnswer(invocation -> {
             AssistanceRequest saved = invocation.getArgument(0);
             return new RequestResponse(

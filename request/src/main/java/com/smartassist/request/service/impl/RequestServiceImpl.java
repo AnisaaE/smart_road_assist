@@ -69,7 +69,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public RequestResponse updateStatus(String id, UpdateRequestStatusRequest request) {
         AssistanceRequest existingRequest = findRequestOrThrow(id);
-        existingRequest.setStatus(request.status());
+        requestMapper.applyStatusUpdate(existingRequest, request);
 
         AssistanceRequest updatedRequest = requestRepository.save(existingRequest);
         return requestMapper.toResponse(updatedRequest);
