@@ -23,15 +23,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public RequestResponse createRequest(CreateRequestRequest request) {
-        AssistanceRequest assistanceRequest = AssistanceRequest.builder()
-                .userId(request.userId())
-                .type(request.type())
-                .description(request.description())
-                .location(request.location())
-                .status(RequestStatus.CREATED)
-                .createdAt(Instant.now())
-                .build();
-
+        AssistanceRequest assistanceRequest = requestMapper.toEntity(request, Instant.now());
         AssistanceRequest savedRequest = requestRepository.save(assistanceRequest);
         return requestMapper.toResponse(savedRequest);
     }

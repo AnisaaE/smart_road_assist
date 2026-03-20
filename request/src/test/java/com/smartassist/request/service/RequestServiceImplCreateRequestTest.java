@@ -2,6 +2,7 @@ package com.smartassist.request.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -42,6 +43,16 @@ class RequestServiceImplCreateRequestTest {
                 RequestType.BATTERY,
                 "Battery is dead",
                 "Downtown garage");
+
+        when(requestMapper.toEntity(eq(request), any(Instant.class))).thenAnswer(invocation ->
+                AssistanceRequest.builder()
+                        .userId(request.userId())
+                        .type(request.type())
+                        .description(request.description())
+                        .location(request.location())
+                        .status(RequestStatus.CREATED)
+                        .createdAt(invocation.getArgument(1))
+                        .build());
 
         when(requestRepository.save(any(AssistanceRequest.class))).thenAnswer(invocation -> {
             AssistanceRequest requestToSave = invocation.getArgument(0);
