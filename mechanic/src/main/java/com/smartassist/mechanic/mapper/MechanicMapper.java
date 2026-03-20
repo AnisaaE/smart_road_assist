@@ -32,6 +32,12 @@ public class MechanicMapper {
                 profile.getCreatedAt());
     }
 
+    public List<MechanicResponse> toResponseList(List<MechanicProfile> profiles) {
+        return profiles.stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     private List<String> copySpecialties(List<String> specialties) {
         return specialties == null ? List.of() : List.copyOf(specialties);
     }

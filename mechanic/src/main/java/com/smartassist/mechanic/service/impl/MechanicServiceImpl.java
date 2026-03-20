@@ -1,6 +1,7 @@
 package com.smartassist.mechanic.service.impl;
 
 import java.time.Instant;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -25,5 +26,10 @@ public class MechanicServiceImpl implements MechanicService {
         MechanicProfile mechanicProfile = mechanicMapper.toEntity(request, Instant.now());
         MechanicProfile savedProfile = mechanicRepository.save(mechanicProfile);
         return mechanicMapper.toResponse(savedProfile);
+    }
+
+    @Override
+    public List<MechanicResponse> getAllMechanics() {
+        return mechanicMapper.toResponseList(mechanicRepository.findAll());
     }
 }

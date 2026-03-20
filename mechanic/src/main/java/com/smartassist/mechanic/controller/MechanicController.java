@@ -1,5 +1,8 @@
 package com.smartassist.mechanic.controller;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +25,11 @@ public class MechanicController {
     static final String MECHANICS_PATH = "/mechanics";
 
     private final MechanicService mechanicService;
+
+    @GetMapping
+    public List<MechanicResponse> getAllMechanics() {
+        return mechanicService.getAllMechanics();
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
