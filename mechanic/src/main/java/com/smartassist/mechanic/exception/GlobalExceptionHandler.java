@@ -16,4 +16,10 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleMethodArgumentNotValidException() {
         return new ErrorResponse("Request validation failed");
     }
+
+    @ExceptionHandler(MechanicNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleMechanicNotFoundException(MechanicNotFoundException ex) {
+        return new ErrorResponse(ex.getMessage());
+    }
 }
