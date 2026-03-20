@@ -31,7 +31,7 @@ public class RequestController {
     static final String REQUESTS_PATH = "/requests";
     private static final String REQUEST_ID_PATH = "/{id}";
     private static final String ASSIGN_PATH = REQUEST_ID_PATH + "/assign";
-    private static final String STATUS_PATH = REQUEST_ID_PATH + "/status";
+    private static final String UPDATE_STATUS_PATH = REQUEST_ID_PATH + "/status";
 
     private final RequestService requestService;
 
@@ -61,7 +61,7 @@ public class RequestController {
         return requestService.assignMechanic(id, request);
     }
 
-    @PutMapping(STATUS_PATH)
+    @PutMapping(UPDATE_STATUS_PATH)
     public RequestResponse updateStatus(@PathVariable String id, @RequestBody UpdateRequestStatusRequest request) {
         return requestService.updateStatus(id, request);
     }
