@@ -22,4 +22,10 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleRequestNotFoundException(RequestNotFoundException ex) {
         return new ErrorResponse(ex.getMessage());
     }
+
+    @ExceptionHandler(InvalidRequestStateException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleInvalidRequestStateException(InvalidRequestStateException ex) {
+        return new ErrorResponse(ex.getMessage());
+    }
 }
