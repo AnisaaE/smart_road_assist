@@ -23,6 +23,8 @@ import com.smartassist.request.service.RequestService;
 @WebMvcTest(RequestController.class)
 class RequestControllerAssignMechanicTest {
 
+    private static final String ASSIGN_PATH = "/requests/req-1/assign";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -41,7 +43,7 @@ class RequestControllerAssignMechanicTest {
                 "mech-42",
                 Instant.parse("2026-03-20T10:15:30Z")));
 
-        mockMvc.perform(put("/requests/req-1/assign")
+        mockMvc.perform(put(ASSIGN_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -55,7 +57,7 @@ class RequestControllerAssignMechanicTest {
 
     @Test
     void assignMechanicShouldRejectBlankMechanicId() throws Exception {
-        mockMvc.perform(put("/requests/req-1/assign")
+        mockMvc.perform(put(ASSIGN_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
