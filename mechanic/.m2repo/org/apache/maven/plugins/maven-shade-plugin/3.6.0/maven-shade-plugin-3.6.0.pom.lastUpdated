@@ -1,0 +1,4 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Tue Mar 24 00:24:54 TRT 2026
+@default-central-https\://repo.maven.apache.org/maven2/.lastUpdated=1774301094232
+https\://repo.maven.apache.org/maven2/.error=Could not transfer artifact org.apache.maven.plugins\:maven-shade-plugin\:pom\:3.6.0 from/to central (https\://repo.maven.apache.org/maven2)\: Permission denied\: getsockopt
