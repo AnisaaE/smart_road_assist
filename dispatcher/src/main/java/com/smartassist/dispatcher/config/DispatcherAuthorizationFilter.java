@@ -8,6 +8,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.smartassist.dispatcher.service.DispatcherAuthorizationService;
+import com.smartassist.dispatcher.service.DispatcherServiceResolver;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,6 +22,7 @@ public class DispatcherAuthorizationFilter extends OncePerRequestFilter {
 
     private final DispatcherProperties dispatcherProperties;
     private final DispatcherAuthorizationService dispatcherAuthorizationService;
+    private final DispatcherServiceResolver dispatcherServiceResolver;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -31,7 +33,7 @@ public class DispatcherAuthorizationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String serviceName = resolveServiceName(request);
+        String serviceName = dispatcherServiceResolver.resolveServiceName(request.getRequestURI());
         if (!StringUtils.hasText(serviceName)) {
             filterChain.doFilter(request, response);
             return;
@@ -49,19 +51,5 @@ public class DispatcherAuthorizationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    private String resolveServiceName(HttpServletRequest request) {
-        String requestUri = request.getRequestURI();
-
-        if (requestUri.startsWith("/api/requests")) {
-            return "requests";
-        }
-
-        if (requestUri.startsWith("/api/mechanics")) {
-            return "mechanics";
-        }
-
-        return null;
     }
 }
