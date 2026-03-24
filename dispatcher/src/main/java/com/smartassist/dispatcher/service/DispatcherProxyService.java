@@ -25,8 +25,16 @@ public class DispatcherProxyService {
     private final DispatcherProperties dispatcherProperties;
 
     public ResponseEntity<byte[]> forwardToRequestService(HttpServletRequest request, byte[] requestBody) {
+        return forward(request, requestBody, dispatcherProperties.requestServiceUrl());
+    }
+
+    public ResponseEntity<byte[]> forwardToMechanicService(HttpServletRequest request, byte[] requestBody) {
+        return forward(request, requestBody, dispatcherProperties.mechanicServiceUrl());
+    }
+
+    private ResponseEntity<byte[]> forward(HttpServletRequest request, byte[] requestBody, String baseUrl) {
         return restClient.method(HttpMethod.valueOf(request.getMethod()))
-                .uri(buildTargetUrl(request))
+                .uri(buildTargetUrl(request, baseUrl))
                 .headers(headers -> copyHeaders(request, headers))
                 .contentType(resolveContentType(request))
                 .body(requestBody == null ? new byte[0] : requestBody)
@@ -34,10 +42,9 @@ public class DispatcherProxyService {
                 .toEntity(byte[].class);
     }
 
-    private String buildTargetUrl(HttpServletRequest request) {
+    private String buildTargetUrl(HttpServletRequest request, String baseUrl) {
         String requestPath = request.getRequestURI().substring(API_PREFIX.length());
         String query = request.getQueryString();
-        String baseUrl = dispatcherProperties.requestServiceUrl();
 
         if (!StringUtils.hasText(query)) {
             return baseUrl + requestPath;

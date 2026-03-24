@@ -4,3 +4,4 @@ spring:
 
 dispatcher:
   request-service-url: http://localhost:8082
+  mechanic-service-url: http://localhost:8081

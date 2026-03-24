@@ -21,4 +21,10 @@ public class DispatcherProxyController {
                                                       @RequestBody(required = false) byte[] requestBody) {
         return dispatcherProxyService.forwardToRequestService(request, requestBody);
     }
+
+    @RequestMapping({"/api/mechanics", "/api/mechanics/**"})
+    public ResponseEntity<byte[]> proxyMechanicService(HttpServletRequest request,
+                                                       @RequestBody(required = false) byte[] requestBody) {
+        return dispatcherProxyService.forwardToMechanicService(request, requestBody);
+    }
 }
