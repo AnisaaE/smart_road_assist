@@ -1,3 +1,6 @@
 spring:
   application:
     name: dispatcher
+
+dispatcher:
+  request-service-url: http://localhost:8082
