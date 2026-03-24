@@ -9,8 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.ResourceAccessException;
 
 import com.smartassist.dispatcher.config.DispatcherProperties;
+import com.smartassist.dispatcher.exception.ServiceUnavailableException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -33,13 +35,17 @@ public class DispatcherProxyService {
     }
 
     private ResponseEntity<byte[]> forward(HttpServletRequest request, byte[] requestBody, String baseUrl) {
-        return restClient.method(HttpMethod.valueOf(request.getMethod()))
-                .uri(buildTargetUrl(request, baseUrl))
-                .headers(headers -> copyHeaders(request, headers))
-                .contentType(resolveContentType(request))
-                .body(requestBody == null ? new byte[0] : requestBody)
-                .retrieve()
-                .toEntity(byte[].class);
+        try {
+            return restClient.method(HttpMethod.valueOf(request.getMethod()))
+                    .uri(buildTargetUrl(request, baseUrl))
+                    .headers(headers -> copyHeaders(request, headers))
+                    .contentType(resolveContentType(request))
+                    .body(requestBody == null ? new byte[0] : requestBody)
+                    .retrieve()
+                    .toEntity(byte[].class);
+        } catch (ResourceAccessException exception) {
+            throw new ServiceUnavailableException("Target service is unavailable", exception);
+        }
     }
 
     private String buildTargetUrl(HttpServletRequest request, String baseUrl) {
