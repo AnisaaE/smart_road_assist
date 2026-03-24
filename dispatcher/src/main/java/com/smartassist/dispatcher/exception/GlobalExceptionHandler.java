@@ -12,7 +12,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ServiceUnavailableException.class)
     public ResponseEntity<ErrorResponse> handleServiceUnavailable(ServiceUnavailableException exception) {
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                .body(new ErrorResponse(exception.getMessage()));
+        return buildErrorResponse(HttpStatus.SERVICE_UNAVAILABLE, exception.getMessage());
+    }
+
+    private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String message) {
+        return ResponseEntity.status(status)
+                .body(new ErrorResponse(message));
     }
 }
