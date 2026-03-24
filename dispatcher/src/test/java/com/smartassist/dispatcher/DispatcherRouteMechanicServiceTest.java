@@ -19,7 +19,10 @@ import org.springframework.http.ResponseEntity;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = "dispatcher.auth-enabled=false"
+)
 class DispatcherRouteMechanicServiceTest {
 
     private static final String MECHANIC_SERVICE_RESPONSE = "[{\"id\":\"mech-1\",\"name\":\"Ahmet\"}]";

@@ -19,7 +19,10 @@ import org.springframework.http.ResponseEntity;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = "dispatcher.auth-enabled=false"
+)
 class DispatcherRouteRequestServiceTest {
 
     private static final String REQUEST_SERVICE_RESPONSE = "[{\"id\":\"req-1\",\"description\":\"Flat tire\"}]";
