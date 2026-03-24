@@ -10,8 +10,9 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public void createUser(User user) {
-        userRepository.save(user);
+   public User createUser(User user) {
+        // Repository'deki save metodu MongoRepository'den otomatik gelir
+        return userRepository.save(user);
     }
 
     public User getUserByEmail(String email) {
