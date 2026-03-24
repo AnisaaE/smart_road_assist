@@ -14,15 +14,18 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DispatcherProxyController {
 
+    private static final String REQUESTS_PATH = "/api/requests";
+    private static final String MECHANICS_PATH = "/api/mechanics";
+
     private final DispatcherProxyService dispatcherProxyService;
 
-    @RequestMapping({"/api/requests", "/api/requests/**"})
+    @RequestMapping({REQUESTS_PATH, REQUESTS_PATH + "/**"})
     public ResponseEntity<byte[]> proxyRequestService(HttpServletRequest request,
                                                       @RequestBody(required = false) byte[] requestBody) {
         return dispatcherProxyService.forwardToRequestService(request, requestBody);
     }
 
-    @RequestMapping({"/api/mechanics", "/api/mechanics/**"})
+    @RequestMapping({MECHANICS_PATH, MECHANICS_PATH + "/**"})
     public ResponseEntity<byte[]> proxyMechanicService(HttpServletRequest request,
                                                        @RequestBody(required = false) byte[] requestBody) {
         return dispatcherProxyService.forwardToMechanicService(request, requestBody);
