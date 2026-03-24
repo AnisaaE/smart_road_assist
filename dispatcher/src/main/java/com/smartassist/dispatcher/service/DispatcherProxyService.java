@@ -63,6 +63,7 @@ public class DispatcherProxyService {
         Collections.list(request.getHeaderNames())
                 .forEach(headerName -> headers.put(headerName, Collections.list(request.getHeaders(headerName))));
         headers.remove(HttpHeaders.HOST);
+        headers.set(dispatcherProperties.internalHeaderName(), dispatcherProperties.internalSharedSecret());
     }
 
     private MediaType resolveContentType(HttpServletRequest request) {

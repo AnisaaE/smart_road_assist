@@ -7,6 +7,8 @@ public record DispatcherProperties(
         String requestServiceUrl,
         String mechanicServiceUrl,
         boolean authEnabled,
-        String apiKeyHeaderName
+        String apiKeyHeaderName,
+        String internalHeaderName,
+        String internalSharedSecret
 ) {
 }

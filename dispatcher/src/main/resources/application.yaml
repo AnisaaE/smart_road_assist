@@ -7,3 +7,5 @@ dispatcher:
   mechanic-service-url: http://localhost:8081
   auth-enabled: true
   api-key-header-name: X-Api-Key
+  internal-header-name: X-Dispatcher-Secret
+  internal-shared-secret: smart-road-assist-internal-secret
