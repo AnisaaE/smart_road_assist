@@ -1,4 +1,4 @@
-package com.smartassist.user;
+package com.smartassist.user.User;
 
 public interface UserRepository {
     void save(User user);

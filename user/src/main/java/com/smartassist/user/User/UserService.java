@@ -1,4 +1,4 @@
-package com.smartassist.user;
+package com.smartassist.user.User;
 
 public class UserService {
     private final UserRepository userRepository;

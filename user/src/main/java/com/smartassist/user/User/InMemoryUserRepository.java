@@ -1,4 +1,4 @@
-package com.smartassist.user;
+package com.smartassist.user.User;
 
 import java.util.HashMap;
 import java.util.Map;

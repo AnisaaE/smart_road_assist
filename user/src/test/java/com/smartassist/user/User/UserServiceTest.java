@@ -1,6 +1,12 @@
-package com.smartassist.user;
+package com.smartassist.user.User;
 
 import org.junit.jupiter.api.Test;
+
+import com.smartassist.user.User.InMemoryUserRepository;
+import com.smartassist.user.User.User;
+import com.smartassist.user.User.UserRepository;
+import com.smartassist.user.User.UserService;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTest {
@@ -15,6 +21,9 @@ public class UserServiceTest {
 
         User savedUser = userRepository.findByEmail("beyza@example.com");
         assertNotNull(savedUser);
+        assertEquals("Beyza", savedUser.getName());
+
+        System.out.println("Kaydedilen kullanıcı: " + savedUser.getName());
         assertEquals("Beyza", savedUser.getName());
     }
 
