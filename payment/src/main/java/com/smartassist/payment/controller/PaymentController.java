@@ -1,10 +1,24 @@
 package com.smartassist.payment.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.smartassist.payment.model.Payment;
+import com.smartassist.payment.service.PaymentService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/payments")
 public class PaymentController {
-    // İÇİ BOŞ: Metot yazmıyoruz ki test 404 veya 405 hatası versin.
+
+    private final PaymentService paymentService;
+
+    public PaymentController(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+
+    @PostMapping
+    public ResponseEntity<Payment> createPayment(@RequestBody Payment payment) {
+        Payment savedPayment = paymentService.createPayment(payment);
+        return new ResponseEntity<>(savedPayment, HttpStatus.CREATED);
+    }
 }
