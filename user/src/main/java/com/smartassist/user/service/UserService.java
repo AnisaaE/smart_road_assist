@@ -2,7 +2,9 @@ package com.smartassist.user.service;
 
 import com.smartassist.user.model.User;
 import com.smartassist.user.repository.UserRepository;
+import org.springframework.stereotype.Service;
 
+@Service
 public class UserService {
     private final UserRepository userRepository;
 

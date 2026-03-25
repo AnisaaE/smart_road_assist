@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "users") // MongoDB'deki tablo ismi
+
 public class User {
     @Id
     private String id; // NoSQL'de ID genelde String/ObjectId olur
