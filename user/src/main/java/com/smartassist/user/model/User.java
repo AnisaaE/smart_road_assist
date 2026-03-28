@@ -16,5 +16,6 @@ public class User {
     private String id; // NoSQL'de ID genelde String/ObjectId olur
     private String name;
     private String email;
+    private String phone;
     private String role; // ADMIN, USER, MECHANIC, DISPATCHER
 }

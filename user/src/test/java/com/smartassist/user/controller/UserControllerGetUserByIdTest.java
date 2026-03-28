@@ -13,25 +13,26 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(UserController.class)
-public class UserControllerGetUserByIdTest {
+    @WebMvcTest(UserController.class)
+    public class UserControllerGetUserByIdTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @MockBean
-    private UserService userService;
-    
+        @MockBean
+        private UserService userService;
+
     @Test
     public void shouldReturnUserWhenIdExists() throws Exception {
-        // GIVEN: Modeldeki alan isimlerine (name) göre nesne oluşturuyoruz
-        User mockUser = new User("1", "ulku", "ulku@mail.com", "USER");
+        // 5 Parametre: id, name, email, phone, role [cite: 62]
+        User mockUser = new User("1", "ulku", "ulku@mail.com", "5551234567", "USER");
+        
         Mockito.when(userService.getUserById("1")).thenReturn(mockUser);
 
-        // WHEN & THEN
         mockMvc.perform(get("/users/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("ulku")) // $.username değil, $.name olmalı
-                .andExpect(jsonPath("$.email").value("ulku@mail.com")); // Modelde phone yok, email var
+                .andExpect(jsonPath("$.name").value("ulku"))
+                .andExpect(jsonPath("$.phone").value("5551234567")) // Yeni eklediğimiz phone alanını da test edelim
+                .andExpect(jsonPath("$.email").value("ulku@mail.com"));
     }
 }

@@ -1,5 +1,6 @@
 package com.smartassist.user.service;
 
+import com.smartassist.user.exception.UserNotFoundException;
 import com.smartassist.user.model.User;
 import com.smartassist.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,9 @@ public class UserService {
                 .orElse(null); // Eğer kullanıcı yoksa null dön (Şimdilik en basit çözüm)
     }
 
+
     public User getUserById(String id) {
-        return userRepository.findById(id).orElse(null); // MongoDB default metodu [cite: 62]
-    }
+    return userRepository.findById(id)
+            .orElseThrow(() -> new UserNotFoundException(String.format("User with ID [%s] not found", id)));
+}
 }
