@@ -12,6 +12,12 @@ public class UserController {
 
     private final UserService userService;
 
+        @GetMapping("/{id}") // RMM Level 2 standardı [cite: 58, 59]
+    public ResponseEntity<User> getUserById(@PathVariable String id) {
+        User user = userService.getUserById(id);
+        return ResponseEntity.ok(user);
+    }
+
     // Dependency Injection: Spring bu servisi otomatik bağlayacak
     public UserController(UserService userService) {
         this.userService = userService;
@@ -25,4 +31,6 @@ public class UserController {
         // RMM Level 2: Başarılı kayıt sonrası 201 Created dönüyoruz
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
+
+
 }

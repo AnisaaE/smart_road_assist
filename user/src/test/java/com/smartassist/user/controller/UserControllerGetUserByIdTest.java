@@ -21,17 +21,17 @@ public class UserControllerGetUserByIdTest {
 
     @MockBean
     private UserService userService;
-
+    
     @Test
     public void shouldReturnUserWhenIdExists() throws Exception {
-        // GIVEN: Hazırlık
-        User mockUser = new User("1", "ulku", "5551234567", "Kocaeli");
+        // GIVEN: Modeldeki alan isimlerine (name) göre nesne oluşturuyoruz
+        User mockUser = new User("1", "ulku", "ulku@mail.com", "USER");
         Mockito.when(userService.getUserById("1")).thenReturn(mockUser);
 
-        // WHEN & THEN: Çalıştırma ve Doğrulama
+        // WHEN & THEN
         mockMvc.perform(get("/users/1"))
-                .andExpect(status().isOk()) // 200 OK bekliyoruz
-                .andExpect(jsonPath("$.username").value("ulku"))
-                .andExpect(jsonPath("$.phone").value("5551234567"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("ulku")) // $.username değil, $.name olmalı
+                .andExpect(jsonPath("$.email").value("ulku@mail.com")); // Modelde phone yok, email var
     }
 }
