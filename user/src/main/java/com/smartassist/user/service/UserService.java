@@ -21,4 +21,9 @@ public class UserService {
         return userRepository.findByEmail(email)
                 .orElse(null); // Eğer kullanıcı yoksa null dön (Şimdilik en basit çözüm)
     }
+    
+    public User getUserById(String id) {
+    // TDD kuralı: Şimdilik içi boş, sadece derleme hatasını çözüyoruz
+    return null; 
+}
 }
