@@ -38,7 +38,7 @@ public class UserControllerUpdateUserTest {
 
         // WHEN & THEN: PUT isteği atıyoruz
         mockMvc.perform(put("/users/" + userId)
-                .contentType(MediaType.APPLICATION_BITSTREAM.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedInfo)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("ulku_yeni"))

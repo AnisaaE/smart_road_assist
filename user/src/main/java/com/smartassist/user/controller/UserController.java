@@ -30,4 +30,9 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build(); // 204 No Content döner [cite: 59]
     }
+    @PutMapping("/{id}") // RMM Level 2: Güncelleme için PUT metodu [cite: 59]
+    public ResponseEntity<User> updateUser(@PathVariable("id") String id, @RequestBody User user) {
+        User updatedUser = userService.updateUser(id, user);
+        return ResponseEntity.ok(updatedUser); // 200 OK [cite: 59]
+    }
 }

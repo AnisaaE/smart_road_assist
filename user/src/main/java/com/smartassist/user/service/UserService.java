@@ -36,4 +36,16 @@ public class UserService {
         }
         userRepository.deleteById(id);
     }
+
+    public User updateUser(String id, User userDetails) {
+        return userRepository.findById(id)
+                .map(user -> {
+                    user.setName(userDetails.getName());
+                    user.setEmail(userDetails.getEmail());
+                    user.setPhone(userDetails.getPhone());
+                    user.setRole(userDetails.getRole());
+                    return userRepository.save(user);
+                })
+                .orElseThrow(() -> new UserNotFoundException("Update failed. ID: " + id));
+    }
 }
