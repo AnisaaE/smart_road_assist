@@ -25,5 +25,9 @@ public class UserController {
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
     
-    // 3. ELİNLE YAZDIĞIN CONSTRUCTOR'I BURADAN SİLDİK
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build(); // 204 No Content döner [cite: 59]
+    }
 }

@@ -28,4 +28,12 @@ public class UserService {
     return userRepository.findById(id)
             .orElseThrow(() -> new UserNotFoundException(String.format("User with ID [%s] not found", id)));
 }
+
+    public void deleteUser(String id) {
+        // Önce kullanıcının varlığını kontrol edip yoksa 404 fırlatabilirsin (RMM Level 2)
+        if (!userRepository.existsById(id)) {
+            throw new UserNotFoundException("Cannot delete. User not found: " + id);
+        }
+        userRepository.deleteById(id);
+    }
 }
