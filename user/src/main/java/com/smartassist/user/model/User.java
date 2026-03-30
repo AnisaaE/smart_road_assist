@@ -20,4 +20,5 @@ public class User {
     private String email;
     private String phone;
     private String role; // ADMIN, USER, MECHANIC, DISPATCHER
+    private String status; // ACTIVE, INACTIVE, BANNED gibi durumlar için
 }
