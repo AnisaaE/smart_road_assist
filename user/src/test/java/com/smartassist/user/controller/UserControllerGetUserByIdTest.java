@@ -25,8 +25,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     @Test
     public void shouldReturnUserWhenIdExists() throws Exception {
         // 5 Parametre: id, name, email, phone, role [cite: 62]
-        User mockUser = new User("1", "ulku", "ulku@mail.com", "5551234567", "USER");
-        
+        User mockUser = User.builder()
+    .id("1")
+    .name("ulku")
+    .email("ulku@mail.com")
+    .status("ACTIVE") // Sadece istediğin alanları set edebilirsin
+    .build();
         Mockito.when(userService.getUserById("1")).thenReturn(mockUser);
 
         mockMvc.perform(get("/users/1"))

@@ -28,20 +28,29 @@ public class UserControllerUpdateUserTest {
     private UserService userService;
 
     @Test
-    public void shouldUpdateUserSuccessfully() throws Exception {
-        String userId = "1";
-        // Güncellenecek yeni veriler
-        User updatedInfo = new User(userId, "ulku_yeni", "yeni@mail.com", "5559999", "USER");
-        
-        Mockito.when(userService.updateUser(Mockito.eq(userId), Mockito.any(User.class)))
-               .thenReturn(updatedInfo);
+        public void shouldUpdateUserSuccessfully() throws Exception {
+            String userId = "1";
+            
+            // 1. Güncellenecek bilgileri temsil eden nesne (Request)
+            User updatedInfo = User.builder()
+                    .id(userId)
+                    .name("ulku_yeni")
+                    .email("yeni@mail.com")
+                    .phone("5559999")
+                    .role("USER")
+                    .status("ACTIVE")
+                    .build();
+            
+            // 2. Mock: Servis çağrıldığında bu nesneyi dönsün
+            Mockito.when(userService.updateUser(Mockito.eq(userId), Mockito.any(User.class)))
+                .thenReturn(updatedInfo);
 
-        // WHEN & THEN: PUT isteği atıyoruz
-        mockMvc.perform(put("/users/" + userId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updatedInfo)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("ulku_yeni"))
-                .andExpect(jsonPath("$.phone").value("5559999"));
-    }
+            // 3. İstek Gönder ve Doğrula
+            mockMvc.perform(put("/users/" + userId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(updatedInfo)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.name").value("ulku_yeni"))
+                    .andExpect(jsonPath("$.phone").value("5559999"));
+        }
 }
