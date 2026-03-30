@@ -1,5 +1,6 @@
-package com.smartassist.payment.dto;
+package com.smartassist.payment.controller; // Paket adını dizine göre güncelledik
 
+import com.smartassist.payment.dto.PaymentRequestDTO; // DTO importu eklendi
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -19,6 +20,7 @@ public class PaymentRequestValidationTest {
 
     @BeforeEach
     void setUp() {
+        // Validation fabrikasını başlatıyoruz
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
     }
@@ -26,7 +28,7 @@ public class PaymentRequestValidationTest {
     @Test
     @DisplayName("Geçerli bir DTO için validasyon hatası olmamalı")
     void shouldPassValidationWithValidRequest() {
-        // GIVEN: Attığın kodlardaki başarılı senaryo verisi
+        // GIVEN
         PaymentRequestDTO request = new PaymentRequestDTO(
                 "req-001", "user-001", new BigDecimal("350.00"), "CREDIT_CARD"
         );
@@ -41,7 +43,7 @@ public class PaymentRequestValidationTest {
     @Test
     @DisplayName("requestId boş olduğunda hata vermeli")
     void shouldFailWhenRequestIdIsBlank() {
-        // GIVEN: shouldReturn400WhenRequestIdIsBlank senaryosu
+        // GIVEN
         PaymentRequestDTO request = new PaymentRequestDTO(
                 "", "user-001", new BigDecimal("100.00"), "CASH"
         );
@@ -51,14 +53,13 @@ public class PaymentRequestValidationTest {
 
         // THEN
         assertThat(violations).isNotEmpty();
-        // requestId alanından dolayı hata geldiğini doğrula
         assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("requestId"));
     }
 
     @Test
     @DisplayName("amount negatif olduğunda hata vermeli")
     void shouldFailWhenAmountIsNegative() {
-        // GIVEN: shouldReturn400WhenAmountIsNegative senaryosu
+        // GIVEN
         PaymentRequestDTO request = new PaymentRequestDTO(
                 "req-001", "user-001", new BigDecimal("-50.00"), "CASH"
         );
