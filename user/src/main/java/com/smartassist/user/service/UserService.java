@@ -1,52 +1,77 @@
 package com.smartassist.user.service;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import com.smartassist.user.dto.UserResponseDTO;
+import com.smartassist.user.dto.UserRequestDTO;
 import com.smartassist.user.exception.UserNotFoundException;
 import com.smartassist.user.model.User;
 import com.smartassist.user.repository.UserRepository;
-import org.springframework.stereotype.Service;
+
 
 @Service
-public class UserService {
+@RequiredArgsConstructor
+public class UserService implements IUserService {
+
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    @Override
+    public UserResponseDTO getUserById(String id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
+        return convertToResponseDTO(user);
     }
 
-   public User createUser(User user) {
-        // Repository'deki save metodu MongoRepository'den otomatik gelir
-        return userRepository.save(user);
+    @Override
+    public UserResponseDTO createUser(UserRequestDTO request) {
+        User user = User.builder()
+                .name(request.getName())
+                .email(request.getEmail())
+                .phone(request.getPhone())
+                .role(request.getRole())
+                .status("ACTIVE") // Varsayılan durum
+                .build();
+        return convertToResponseDTO(userRepository.save(user));
     }
 
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElse(null); // Eğer kullanıcı yoksa null dön (Şimdilik en basit çözüm)
+    @Override
+    public UserResponseDTO updateUser(String id, UserRequestDTO request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
+        
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
+        user.setRole(request.getRole());
+        
+        return convertToResponseDTO(userRepository.save(user));
     }
 
-
-    public User getUserById(String id) {
-    return userRepository.findById(id)
-            .orElseThrow(() -> new UserNotFoundException(String.format("User with ID [%s] not found", id)));
-}
-
+    @Override
     public void deleteUser(String id) {
-        // Önce kullanıcının varlığını kontrol edip yoksa 404 fırlatabilirsin (RMM Level 2)
         if (!userRepository.existsById(id)) {
-            throw new UserNotFoundException("Cannot delete. User not found: " + id);
+            throw new UserNotFoundException("User not found: " + id);
         }
         userRepository.deleteById(id);
     }
 
-    public User updateUser(String id, User details) {
-    // REFAKTÖR: findById -> map -> orElseThrow zinciri (Functional Approach)
-    return userRepository.findById(id)
-        .map(existingUser -> {
-            existingUser.setName(details.getName());
-            existingUser.setEmail(details.getEmail());
-            existingUser.setPhone(details.getPhone());
-            existingUser.setRole(details.getRole());
-            return userRepository.save(existingUser);
-        })
-        .orElseThrow(() -> new UserNotFoundException("Update failed: ID " + id + " not found"));
-}
+    @Override
+    public UserResponseDTO updateStatus(String id, String status) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
+        user.setStatus(status);
+        return convertToResponseDTO(userRepository.save(user));
+    }
+
+    // Mapper Metodu: Entity -> DTO (RMM Level 3 Hazırlığı)
+    private UserResponseDTO convertToResponseDTO(User user) {
+        return UserResponseDTO.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .role(user.getRole())
+                .status(user.getStatus())
+                .build();
+    }
 }

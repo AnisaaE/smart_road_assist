@@ -1,23 +1,24 @@
 package com.smartassist.user.controller;
 
+import com.smartassist.user.dto.UserRequestDTO; // EKLE
+import com.smartassist.user.dto.UserResponseDTO; // EKLE
 import com.smartassist.user.exception.UserNotFoundException;
-import com.smartassist.user.model.User;
-import com.smartassist.user.service.UserService;
-import lombok.RequiredArgsConstructor; // 1. BU IMPORTU EKLE
+import com.smartassist.user.service.IUserService; // UserService yerine IUserService
+import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;
-import java.util.Map; 
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/users")
-@RequiredArgsConstructor // 2. BU, CONSTRUCTOR'I OTOMATİK OLUŞTURUR
+@RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
-// REFAKTÖR: Hata yakalayıcıyı controller içine gömüyoruz
+    private final IUserService userService; // Artık Interface kullanıyoruz (SOLID)
+
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleNotFound(UserNotFoundException ex) {
         Map<String, Object> errorBody = new HashMap<>();
@@ -26,26 +27,29 @@ public class UserController {
         return new ResponseEntity<>(errorBody, HttpStatus.NOT_FOUND);
     }
 
-
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable("id") String id) { // Explicit path variable
+    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable("id") String id) {
+        // IUserService.getUserById artık UserResponseDTO döner
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @PostMapping 
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        User createdUser = userService.createUser(user);
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO request) {
+        // Parametre artık UserRequestDTO olmalı
+        UserResponseDTO createdUser = userService.createUser(request);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
-    
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
-        return ResponseEntity.noContent().build(); // 204 No Content döner [cite: 59]
+        return ResponseEntity.noContent().build();
     }
-    @PutMapping("/{id}") // RMM Level 2: Güncelleme için PUT metodu [cite: 59]
-    public ResponseEntity<User> updateUser(@PathVariable("id") String id, @RequestBody User user) {
-        User updatedUser = userService.updateUser(id, user);
-        return ResponseEntity.ok(updatedUser); // 200 OK [cite: 59]
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable("id") String id, @RequestBody UserRequestDTO request) {
+        // User yerine UserRequestDTO kullanıyoruz
+        UserResponseDTO updatedUser = userService.updateUser(id, request);
+        return ResponseEntity.ok(updatedUser);
     }
 }
