@@ -37,15 +37,16 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public User updateUser(String id, User userDetails) {
-        return userRepository.findById(id)
-                .map(user -> {
-                    user.setName(userDetails.getName());
-                    user.setEmail(userDetails.getEmail());
-                    user.setPhone(userDetails.getPhone());
-                    user.setRole(userDetails.getRole());
-                    return userRepository.save(user);
-                })
-                .orElseThrow(() -> new UserNotFoundException("Update failed. ID: " + id));
-    }
+    public User updateUser(String id, User details) {
+    // REFAKTÖR: findById -> map -> orElseThrow zinciri (Functional Approach)
+    return userRepository.findById(id)
+        .map(existingUser -> {
+            existingUser.setName(details.getName());
+            existingUser.setEmail(details.getEmail());
+            existingUser.setPhone(details.getPhone());
+            existingUser.setRole(details.getRole());
+            return userRepository.save(existingUser);
+        })
+        .orElseThrow(() -> new UserNotFoundException("Update failed: ID " + id + " not found"));
+}
 }

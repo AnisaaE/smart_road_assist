@@ -1,8 +1,12 @@
 package com.smartassist.user.controller;
 
+import com.smartassist.user.exception.UserNotFoundException;
 import com.smartassist.user.model.User;
 import com.smartassist.user.service.UserService;
 import lombok.RequiredArgsConstructor; // 1. BU IMPORTU EKLE
+
+import java.util.HashMap;
+import java.util.Map; 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +17,15 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+// REFAKTÖR: Hata yakalayıcıyı controller içine gömüyoruz
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleNotFound(UserNotFoundException ex) {
+        Map<String, Object> errorBody = new HashMap<>();
+        errorBody.put("message", ex.getMessage());
+        errorBody.put("status", HttpStatus.NOT_FOUND.value());
+        return new ResponseEntity<>(errorBody, HttpStatus.NOT_FOUND);
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable("id") String id) { // Explicit path variable
