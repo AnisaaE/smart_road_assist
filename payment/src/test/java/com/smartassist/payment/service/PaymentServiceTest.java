@@ -97,4 +97,16 @@ public class PaymentServiceTest {
             () -> paymentService.updatePaymentStatus("pay-123", "FAILED")
         );
     }
+
+        @Test
+    @DisplayName("Olmayan bir ID ile ödeme sorgulandığında PaymentNotFoundException fırlatmalı")
+    void shouldThrowExceptionWhenPaymentIdNotFound() {
+        // GIVEN: Repository boş dönecek
+        Mockito.when(paymentRepository.findById("not-exists")).thenReturn(java.util.Optional.empty());
+
+        // WHEN & THEN: Metot çağrıldığında bu hatayı bekliyoruz
+        org.junit.jupiter.api.Assertions.assertThrows(PaymentNotFoundException.class, () -> {
+            paymentService.getPaymentById("not-exists");
+        });
+    }
 }
