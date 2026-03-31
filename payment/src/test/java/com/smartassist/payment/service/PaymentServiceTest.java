@@ -1,10 +1,9 @@
-ppackage com.smartassist.payment.service;
+package com.smartassist.payment.service;
 
 import com.smartassist.payment.dto.PaymentRequestDTO;
 import com.smartassist.payment.dto.PaymentResponseDTO;
 import com.smartassist.payment.model.Payment;
 import com.smartassist.payment.repository.PaymentRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,30 +24,38 @@ public class PaymentServiceTest {
     private PaymentRepository paymentRepository;
 
     @InjectMocks
-    private PaymentService paymentService; // IPaymentService'i implement eden sınıf
+    private PaymentService paymentService;
 
     @Test
     @DisplayName("Yeni ödeme oluşturulduğunda statüsü PENDING olmalı")
     void shouldCreatePaymentWithPendingStatus() {
-        // GIVEN
+        // 1. GIVEN: DTO'yu oluştururken parametre sırasına dikkat!
+        // (requestId, userId, amount, paymentMethod)
         PaymentRequestDTO request = new PaymentRequestDTO(
-                "req-1", "user-1", new BigDecimal("100.00"), "CASH"
+                "req-1", 
+                "user-1", 
+                new BigDecimal("100.00"), 
+                "CASH"
         );
 
-        // Repository save edildiğinde dönecek olan mock nesne
-        Payment savedPayment = new Payment();
-        savedPayment.setId("pay-123");
-        savedPayment.setStatus("PENDING");
-        savedPayment.setAmount(new BigDecimal("100.00"));
+        // 2. Mock nesnesini Builder ile oluştur (Eğer Payment sınıfında @Builder varsa)
+        Payment savedPayment = Payment.builder()
+                .id("pay-123")
+                .requestId("req-1")
+                .userId("user-1")
+                .amount(new BigDecimal("100.00"))
+                .paymentMethod("CASH")
+                .status("PENDING")
+                .build();
 
         Mockito.when(paymentRepository.save(any(Payment.class))).thenReturn(savedPayment);
 
-        // WHEN
+        // 3. WHEN
         PaymentResponseDTO response = paymentService.createPayment(request);
 
-        // THEN
+        // 4. THEN
         assertThat(response.getStatus()).isEqualTo("PENDING");
-        assertThat(response.getId()).isNotNull();
+        assertThat(response.getId()).isEqualTo("pay-123");
         Mockito.verify(paymentRepository, Mockito.times(1)).save(any(Payment.class));
     }
 }

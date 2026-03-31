@@ -1,12 +1,22 @@
 package com.smartassist.payment.model;
 
-import lombok.Data;
+import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import java.math.BigDecimal;
 
-@Data
+@Document(collection = "payments")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Payment {
     @Id
     private String id;
-    private double amount;
-    private String status;
+    private String requestId;
+    private String userId;
+    private BigDecimal amount;
+    private String paymentMethod;
+    private String status; // PENDING, PAID, FAILED
 }
