@@ -18,5 +18,7 @@ public class Payment {
     private String userId;
     private BigDecimal amount;
     private String paymentMethod;
-    private String status; // PENDING, PAID, FAILED
+    
+    // String yerine PaymentStatus Enum tipini kullanıyoruz
+    private PaymentStatus status; 
 }

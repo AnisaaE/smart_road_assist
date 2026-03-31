@@ -10,8 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/payments")
@@ -22,23 +20,42 @@ public class PaymentController {
 
     @PostMapping
     public ResponseEntity<PaymentResponseDTO> createPayment(@Valid @RequestBody PaymentRequestDTO request) {
-        // 1. Servisi çağır ve DTO'yu al
         PaymentResponseDTO response = paymentService.createPayment(request);
-
-        // 2. HATEOAS Linklerini Ekle (Self Link)
-        response.add(linkTo(methodOn(PaymentController.class).getPaymentById(response.getId())).withSelfRel());
-
-        // 3. Ek Navigasyon Linki (Update Status)
-        response.add(linkTo(methodOn(PaymentController.class).updatePaymentStatus(response.getId(), null))
-                .withRel("update-status"));
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(addHateoasLinks(response));
     }
 
-    // Testlerin derlenmesi için boş metodlar (İçini Service aşamasında dolduracağız)
     @GetMapping("/{id}")
-    public PaymentResponseDTO getPaymentById(@PathVariable String id) { return null; }
+    public ResponseEntity<PaymentResponseDTO> getPaymentById(@PathVariable String id) {
+        PaymentResponseDTO response = paymentService.getPaymentById(id);
+        return ResponseEntity.ok(addHateoasLinks(response));
+    }
 
     @PatchMapping("/{id}/status")
-    public PaymentResponseDTO updatePaymentStatus(@PathVariable String id, @RequestParam String value) { return null; }
+    public ResponseEntity<PaymentResponseDTO> updatePaymentStatus(
+            @PathVariable String id, 
+            @RequestParam String value) {
+        
+        PaymentResponseDTO response = paymentService.updatePaymentStatus(id, value);
+        return ResponseEntity.ok(addHateoasLinks(response));
+    }
+
+    /**
+     * RMM Level 3: HATEOAS Linklerini ekleyen yardımcı metod.
+     * Kod tekrarını önlemek için merkezi bir yere aldık.
+     */
+    private PaymentResponseDTO addHateoasLinks(PaymentResponseDTO dto) {
+        // 1. Kendi linki (Self)
+        dto.add(linkTo(methodOn(PaymentController.class).getPaymentById(dto.getId())).withSelfRel());
+
+        // 2. Statü güncelleme linki (Update)
+        dto.add(linkTo(methodOn(PaymentController.class).updatePaymentStatus(dto.getId(), null))
+                .withRel("update-status"));
+        
+        // 3. Workflow gereği: İlgili Request'e (Yardım Talebi) gidiş linki (Dış Link)
+        // Not: Bu link Dispatcher üzerinden Requests servisine yönlenir.
+        dto.add(linkTo(methodOn(PaymentController.class).createPayment(null))
+                .slash("requests").slash(dto.getRequestId()).withRel("related-request"));
+
+        return dto;
+    }
 }

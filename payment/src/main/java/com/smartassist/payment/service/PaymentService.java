@@ -3,6 +3,7 @@ package com.smartassist.payment.service;
 import com.smartassist.payment.dto.PaymentRequestDTO;
 import com.smartassist.payment.dto.PaymentResponseDTO;
 import com.smartassist.payment.model.Payment;
+import com.smartassist.payment.model.PaymentStatus;
 import com.smartassist.payment.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ public class PaymentService implements IPaymentService {
                 .userId(dto.getUserId())           // .userId() değil, get ile çağır
                 .amount(dto.getAmount())           // .amount() değil, get ile çağır
                 .paymentMethod(dto.getPaymentMethod()) // .paymentMethod() değil, get ile çağır
-                .status("PENDING")
+                .status(PaymentStatus.PENDING)
                 .build();
 
         // 2. Veritabanına kaydet
