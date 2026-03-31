@@ -5,6 +5,9 @@ import com.smartassist.payment.dto.PaymentResponseDTO;
 import com.smartassist.payment.model.Payment;
 import com.smartassist.payment.model.PaymentStatus;
 import com.smartassist.payment.repository.PaymentRepository;
+import com.smartassist.payment.exception.PaymentNotFoundException;
+import com.smartassist.payment.exception.InvalidPaymentStatusException;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,8 +17,10 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy; // Eklendi
 import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
@@ -98,15 +103,14 @@ public class PaymentServiceTest {
         );
     }
 
-        @Test
+// JUnit yerine AssertJ (assertThatThrownBy) kullanımı:
+    @Test
     @DisplayName("Olmayan bir ID ile ödeme sorgulandığında PaymentNotFoundException fırlatmalı")
     void shouldThrowExceptionWhenPaymentIdNotFound() {
-        // GIVEN: Repository boş dönecek
-        Mockito.when(paymentRepository.findById("not-exists")).thenReturn(java.util.Optional.empty());
+        Mockito.when(paymentRepository.findById("not-exists")).thenReturn(Optional.empty());
 
-        // WHEN & THEN: Metot çağrıldığında bu hatayı bekliyoruz
-        org.junit.jupiter.api.Assertions.assertThrows(PaymentNotFoundException.class, () -> {
-            paymentService.getPaymentById("not-exists");
-        });
+        // AssertJ stili:
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> paymentService.getPaymentById("not-exists"))
+                .isInstanceOf(PaymentNotFoundException.class);
     }
 }
