@@ -51,14 +51,13 @@ public class PaymentService implements IPaymentService {
         return mapToResponse(repository.save(payment));
     }
 
-    @Override 
+    @Override
     public PaymentResponseDTO getPaymentByRequestId(String requestId) {
         return repository.findByRequestId(requestId)
-                .map(this::mapToResponse)
-                .orElseThrow(() -> new PaymentNotFoundException("Payment not found for request: " + requestId));
+                .map(this::mapToResponse) // Mevcut mapper metodun
+                .orElseThrow(() -> new PaymentNotFoundException("No payment found for Request ID: " + requestId));
     }
-
-    private PaymentResponseDTO mapToResponse(Payment p) {
+        private PaymentResponseDTO mapToResponse(Payment p) {
         return PaymentResponseDTO.builder()
                 .id(p.getId())
                 .requestId(p.getRequestId())

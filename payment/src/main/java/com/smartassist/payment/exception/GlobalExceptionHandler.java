@@ -32,4 +32,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleGeneralException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
     }
+
+    @ExceptionHandler(PaymentNotFoundException.class)
+    public ResponseEntity<String> handleNotFound(PaymentNotFoundException ex) {
+        // Testin isNotFound() (404) beklemesini bu satır sağlar
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
 }

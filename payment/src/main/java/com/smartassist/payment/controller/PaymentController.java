@@ -29,7 +29,15 @@ public class PaymentController {
         PaymentResponseDTO response = paymentService.getPaymentById(id);
         return ResponseEntity.ok(addHateoasLinks(response));
     }
-
+    
+    @GetMapping("/request/{requestId}")
+public ResponseEntity<PaymentResponseDTO> getPaymentByRequestId(@PathVariable String requestId) {
+    // 1. Servisten veriyi al
+    PaymentResponseDTO response = paymentService.getPaymentByRequestId(requestId);
+    
+    // 2. HATEOAS Linklerini ekle (addHateoasLinks metodun hazır olmalı)
+    return ResponseEntity.ok(addHateoasLinks(response));
+}
     @PatchMapping("/{id}/status")
     public ResponseEntity<PaymentResponseDTO> updatePaymentStatus(
             @PathVariable String id, 
