@@ -1,11 +1,13 @@
-package com.smartassist.payment.repository;
+package com.smartassist.payment.controller;
 
 import com.smartassist.payment.model.Payment;
 import com.smartassist.payment.model.PaymentStatus;
+import com.smartassist.payment.repository.PaymentRepository; // Bu satırı ekle
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+
 
 import java.math.BigDecimal;
 import java.util.Optional;
