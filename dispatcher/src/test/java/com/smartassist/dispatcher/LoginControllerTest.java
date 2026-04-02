@@ -24,6 +24,7 @@ import com.smartassist.dispatcher.controller.LoginController;
 import com.smartassist.dispatcher.model.AuthUser;
 import com.smartassist.dispatcher.repository.AuthUserRepository;
 import com.smartassist.dispatcher.service.AuthenticationService;
+import com.smartassist.dispatcher.service.DispatcherAccessPolicyService;
 import com.smartassist.dispatcher.service.DispatcherAuthorizationService;
 import com.smartassist.dispatcher.service.DispatcherServiceResolver;
 import com.smartassist.dispatcher.service.JwtService;
@@ -33,6 +34,7 @@ import com.smartassist.dispatcher.service.JwtService;
         SecurityConfig.class,
         PasswordConfig.class,
         AuthenticationService.class,
+        DispatcherAccessPolicyService.class,
         JwtService.class
 })
 @TestPropertySource(properties = "dispatcher.jwt-secret=test-jwt-secret-with-sufficient-length-123456")

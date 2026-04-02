@@ -31,12 +31,16 @@ public class DispatcherAccessPolicyService {
         }
 
         if (HttpMethod.GET.matches(method)) {
-            String[] pathParts = requestUri.split("/");
-            String requestedUserId = pathParts[pathParts.length - 1];
+            String requestedUserId = extractUserId(requestUri);
             return hasAnyRole(user, "ADMIN") || requestedUserId.equals(user.userId());
         }
 
         return hasAnyRole(user, "ADMIN");
+    }
+
+    private String extractUserId(String requestUri) {
+        String[] pathParts = requestUri.split("/");
+        return pathParts[pathParts.length - 1];
     }
 
     private boolean hasAnyRole(AuthenticatedUser user, String... roles) {

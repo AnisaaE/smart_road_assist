@@ -27,9 +27,13 @@ public class TrafficLoggingFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } finally {
             long durationMs = System.currentTimeMillis() - startedAt;
-            LOGGER.info("dispatcher traffic method={} path={} status={} durationMs={}",
+            Object userId = request.getAttribute(DispatcherAuthorizationFilter.AUTHENTICATED_USER_ID);
+            Object userRole = request.getAttribute(DispatcherAuthorizationFilter.AUTHENTICATED_USER_ROLE);
+            LOGGER.info("dispatcher traffic method={} path={} userId={} role={} status={} durationMs={}",
                     request.getMethod(),
                     request.getRequestURI(),
+                    userId,
+                    userRole,
                     response.getStatus(),
                     durationMs);
         }
