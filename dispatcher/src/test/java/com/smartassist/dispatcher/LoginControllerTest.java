@@ -28,6 +28,7 @@ import com.smartassist.dispatcher.service.DispatcherAccessPolicyService;
 import com.smartassist.dispatcher.service.DispatcherAuthorizationService;
 import com.smartassist.dispatcher.service.DispatcherServiceResolver;
 import com.smartassist.dispatcher.service.JwtService;
+import com.smartassist.dispatcher.service.RegistrationService;
 
 @WebMvcTest(LoginController.class)
 @Import({
@@ -54,6 +55,9 @@ class LoginControllerTest {
 
     @MockitoBean
     private DispatcherServiceResolver dispatcherServiceResolver;
+
+    @MockitoBean
+    private RegistrationService registrationService;
 
     @Test
     void validCredentials_returnsJwtToken() throws Exception {

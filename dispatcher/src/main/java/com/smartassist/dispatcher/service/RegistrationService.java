@@ -19,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RegistrationService {
 
+    private static final String DEFAULT_ROLE = "USER";
+
     private final RestClient restClient;
     private final DispatcherProperties dispatcherProperties;
     private final AuthUserRepository authUserRepository;
@@ -26,8 +28,22 @@ public class RegistrationService {
     private final JwtService jwtService;
 
     public RegistrationResponse register(RegistrationRequest request) {
-        String role = request.role() == null || request.role().isBlank() ? "USER" : request.role();
+        String role = resolveRole(request);
+        UserRegistrationResponse userResponse = createUserProfile(request, role);
+        authUserRepository.save(createAuthUser(request, userResponse.id(), role));
 
+        return new RegistrationResponse(
+                jwtService.generateToken(request.email(), userResponse.id(), role),
+                userResponse.id(),
+                role
+        );
+    }
+
+    private String resolveRole(RegistrationRequest request) {
+        return request.role() == null || request.role().isBlank() ? DEFAULT_ROLE : request.role();
+    }
+
+    private UserRegistrationResponse createUserProfile(RegistrationRequest request, String role) {
         UserRegistrationResponse userResponse = restClient.post()
                 .uri(dispatcherProperties.userServiceUrl() + "/users")
                 .header(dispatcherProperties.internalHeaderName(), dispatcherProperties.internalSharedSecret())
@@ -40,21 +56,16 @@ public class RegistrationService {
                 ))
                 .retrieve()
                 .body(UserRegistrationResponse.class);
+        return userResponse;
+    }
 
-        AuthUser authUser = AuthUser.builder()
+    private AuthUser createAuthUser(RegistrationRequest request, String userId, String role) {
+        return AuthUser.builder()
                 .email(request.email())
                 .passwordHash(passwordEncoder.encode(request.password()))
                 .role(role)
-                .userId(userResponse.id())
+                .userId(userId)
                 .build();
-
-        authUserRepository.save(authUser);
-
-        return new RegistrationResponse(
-                jwtService.generateToken(request.email(), userResponse.id(), role),
-                userResponse.id(),
-                role
-        );
     }
 
     private record UserRegistrationResponse(String id) {
