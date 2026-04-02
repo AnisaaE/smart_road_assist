@@ -19,6 +19,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @WebMvcTest(NotificationController.class) // Sadece Web katmanını ayağa kaldırır
 public class NotificationControllerTest {
@@ -60,6 +61,20 @@ public class NotificationControllerTest {
                 .content(objectMapper.writeValueAsString(validRequest)))
                 .andExpect(status().isCreated()) // 201 Created bekliyoruz
                 .andExpect(jsonPath("$.id").value("notif-001"))
+                .andExpect(jsonPath("$.status").value("SENT"));
+    }
+    @Test
+    @DisplayName("GET /api/notifications/{id} - ID ile bildirim detaylarını getirmeli")
+    void shouldReturnNotificationById() throws Exception {
+        // GIVEN
+        String notifId = "notif-001";
+        when(notificationService.getNotificationById(notifId)).thenReturn(mockResponse);
+
+        // WHEN & THEN
+        mockMvc.perform(get("/api/notifications/" + notifId))
+                .andExpect(status().isOk()) // 200 OK bekliyoruz
+                .andExpect(jsonPath("$.id").value(notifId))
+                .andExpect(jsonPath("$.recipientId").value("user-123"))
                 .andExpect(jsonPath("$.status").value("SENT"));
     }
 }
