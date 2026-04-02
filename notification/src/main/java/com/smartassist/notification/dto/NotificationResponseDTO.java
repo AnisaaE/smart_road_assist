@@ -11,7 +11,7 @@ public class NotificationResponseDTO {
     private String status;
     private LocalDateTime sentAt;
 
-    // Servis içindeki return new NotificationResponseDTO(...) çağrısı için gereken Constructor
+    // Tüm alanları içeren Constructor (Servis için kritik)
     public NotificationResponseDTO(String id, String recipientId, String requestId, 
                                    String type, String message, String status, LocalDateTime sentAt) {
         this.id = id;
@@ -23,8 +23,10 @@ public class NotificationResponseDTO {
         this.sentAt = sentAt;
     }
 
-    // Test içindeki assertEquals(..., response.getStatus()) için gereken Getterlar
+    // Getters (Testlerin doğrulanması için gerekli)
     public String getId() { return id; }
-    public String getStatus() { return status; }
     public String getRecipientId() { return recipientId; }
+    public String getStatus() { return status; }
+    public String getMessage() { return message; }
+    // Diğer getter'ları ihtiyaca göre ekleyebilirsin
 }

@@ -4,10 +4,10 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 
-@Document(collection = "notifications") // MongoDB için @Table yerine @Document
+@Document(collection = "notifications")
 public class Notification {
 
-    @Id // Bu anotasyon artık Spring Data MongoDB'den geliyor
+    @Id
     private String id;
     private String recipientId;
     private String requestId;
@@ -18,7 +18,6 @@ public class Notification {
 
     public Notification() {}
 
-    // Getters & Setters (Aynı kalabilir)
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
     public String getRecipientId() { return recipientId; }
