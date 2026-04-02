@@ -6,9 +6,13 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record DispatcherProperties(
         String requestServiceUrl,
         String mechanicServiceUrl,
+        String userServiceUrl,
+        String paymentServiceUrl,
+        String notificationServiceUrl,
         boolean authEnabled,
         String apiKeyHeaderName,
         String internalHeaderName,
-        String internalSharedSecret
+        String internalSharedSecret,
+        String jwtSecret
 ) {
 }

@@ -12,16 +12,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.smartassist.dispatcher.config.DispatcherProperties;
 import com.smartassist.dispatcher.config.PasswordConfig;
 import com.smartassist.dispatcher.config.SecurityConfig;
 import com.smartassist.dispatcher.controller.LoginController;
 import com.smartassist.dispatcher.model.AuthUser;
 import com.smartassist.dispatcher.repository.AuthUserRepository;
 import com.smartassist.dispatcher.service.AuthenticationService;
+import com.smartassist.dispatcher.service.DispatcherAuthorizationService;
+import com.smartassist.dispatcher.service.DispatcherServiceResolver;
 import com.smartassist.dispatcher.service.JwtService;
 
 @WebMvcTest(LoginController.class)
@@ -40,12 +44,21 @@ class LoginControllerTest {
     @MockitoBean
     private AuthUserRepository authUserRepository;
 
+    @MockitoBean
+    private DispatcherProperties dispatcherProperties;
+
+    @MockitoBean
+    private DispatcherAuthorizationService dispatcherAuthorizationService;
+
+    @MockitoBean
+    private DispatcherServiceResolver dispatcherServiceResolver;
+
     @Test
     void validCredentials_returnsJwtToken() throws Exception {
         AuthUser authUser = AuthUser.builder()
                 .id("auth-1")
                 .email("admin@smartassist.com")
-                .passwordHash("$2a$10$DowJonesIndexTradeableFf7V2.A4L39xVwqJyhxm7w1f1E5mIm")
+                .passwordHash(new BCryptPasswordEncoder().encode("secret123"))
                 .role("ADMIN")
                 .userId("user-1")
                 .build();
