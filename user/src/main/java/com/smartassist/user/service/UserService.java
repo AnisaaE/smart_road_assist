@@ -48,6 +48,14 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public UserResponseDTO updateRole(String id, String role) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
+        user.setRole(role);
+        return convertToResponseDTO(userRepository.save(user));
+    }
+
+    @Override
     public void deleteUser(String id) {
         if (!userRepository.existsById(id)) {
             throw new UserNotFoundException("User not found: " + id);
