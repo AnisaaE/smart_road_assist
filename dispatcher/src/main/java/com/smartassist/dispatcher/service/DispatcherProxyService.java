@@ -2,6 +2,8 @@ package com.smartassist.dispatcher.service;
 
 import java.util.Collections;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -28,6 +30,7 @@ public class DispatcherProxyService {
 
     private final RestClient restClient;
     private final DispatcherProperties dispatcherProperties;
+    private final ObjectMapper objectMapper;
 
     public ResponseEntity<byte[]> forwardToRequestService(HttpServletRequest request, byte[] requestBody) {
         return forward(request, requestBody, dispatcherProperties.requestServiceUrl());
@@ -51,13 +54,14 @@ public class DispatcherProxyService {
 
     private ResponseEntity<byte[]> forward(HttpServletRequest request, byte[] requestBody, String baseUrl) {
         try {
-            return restClient.method(HttpMethod.valueOf(request.getMethod()))
+            ResponseEntity<byte[]> response = restClient.method(HttpMethod.valueOf(request.getMethod()))
                     .uri(buildTargetUrl(request, baseUrl))
                     .headers(headers -> copyHeaders(request, headers))
                     .contentType(resolveContentType(request))
                     .body(requestBody == null ? new byte[0] : requestBody)
                     .retrieve()
                     .toEntity(byte[].class);
+            return enrichUserResponseIfNeeded(request, response);
         } catch (ResourceAccessException exception) {
             throw new ServiceUnavailableException("Target service is unavailable", exception);
         }
@@ -93,6 +97,39 @@ public class DispatcherProxyService {
 
         if (userRole != null) {
             headers.set(USER_ROLE_HEADER, userRole.toString());
+        }
+    }
+
+    private ResponseEntity<byte[]> enrichUserResponseIfNeeded(HttpServletRequest request, ResponseEntity<byte[]> response) {
+        if (!request.getRequestURI().startsWith("/api/users/")
+                || !HttpMethod.GET.matches(request.getMethod())
+                || response.getBody() == null) {
+            return response;
+        }
+
+        try {
+            ObjectNode responseJson = (ObjectNode) objectMapper.readTree(response.getBody());
+            ObjectNode links = objectMapper.createObjectNode();
+            String requestUri = request.getRequestURI();
+            String role = String.valueOf(request.getAttribute(DispatcherAuthorizationFilter.AUTHENTICATED_USER_ROLE));
+
+            links.put("self", requestUri);
+            if ("ADMIN".equals(role)) {
+                links.put("update", requestUri);
+                links.put("delete", requestUri);
+                links.put("change-role", requestUri + "/role");
+            }
+
+            responseJson.set("_links", links);
+            byte[] enrichedBody = objectMapper.writeValueAsBytes(responseJson);
+            HttpHeaders enrichedHeaders = new HttpHeaders();
+            enrichedHeaders.putAll(response.getHeaders());
+            enrichedHeaders.remove(HttpHeaders.CONTENT_LENGTH);
+            return ResponseEntity.status(response.getStatusCode())
+                    .headers(enrichedHeaders)
+                    .body(enrichedBody);
+        } catch (Exception exception) {
+            return response;
         }
     }
 
