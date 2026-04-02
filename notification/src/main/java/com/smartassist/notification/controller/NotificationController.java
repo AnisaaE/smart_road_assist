@@ -26,4 +26,14 @@ public class NotificationController {
         // Testin beklediği 201 Created (isCreated) statüsünü dönüyoruz
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+    // ... önceki kodlar (constructor ve post metodu)
+
+    @GetMapping("/{id}")
+    public ResponseEntity<NotificationResponseDTO> getNotificationById(@PathVariable String id) {
+        // Servis katmanındaki sağlamlaştırdığımız metodu çağırıyoruz
+        NotificationResponseDTO response = notificationService.getNotificationById(id);
+        
+        // Başarılı ise 200 OK dönüyoruz
+        return ResponseEntity.ok(response);
+    }
 }
