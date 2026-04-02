@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.smartassist.dispatcher.dto.request.LoginRequest;
 import com.smartassist.dispatcher.dto.response.LoginResponse;
+import com.smartassist.dispatcher.exception.InvalidCredentialsException;
 import com.smartassist.dispatcher.model.AuthUser;
 import com.smartassist.dispatcher.repository.AuthUserRepository;
 
@@ -20,10 +21,10 @@ public class AuthenticationService {
 
     public LoginResponse login(LoginRequest request) {
         AuthUser authUser = authUserRepository.findByEmail(request.email())
-                .orElseThrow();
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials"));
 
         if (!passwordEncoder.matches(request.password(), authUser.getPasswordHash())) {
-            throw new IllegalArgumentException("Invalid credentials");
+            throw new InvalidCredentialsException("Invalid credentials");
         }
 
         return new LoginResponse(

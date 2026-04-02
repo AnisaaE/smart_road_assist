@@ -15,6 +15,11 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.SERVICE_UNAVAILABLE, exception.getMessage());
     }
 
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentials(InvalidCredentialsException exception) {
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, exception.getMessage());
+    }
+
     private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String message) {
         return ResponseEntity.status(status)
                 .body(new ErrorResponse(message));
