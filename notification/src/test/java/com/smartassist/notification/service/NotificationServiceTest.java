@@ -1,21 +1,29 @@
 package com.smartassist.notification.service;
 
-import com.smartassist.notification.dto.NotificationRequestDTO;
 import com.smartassist.notification.dto.NotificationResponseDTO;
 import com.smartassist.notification.model.Notification;
 import com.smartassist.notification.repository.NotificationRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * TDD — RED PHASE
+ *
+ * NotificationService için basit unit test.
+ * Mevcut sınıflar: Notification, NotificationResponseDTO, NotificationRepository
+ *
+ * Bu test şu an RED'dir çünkü NotificationService henüz yok.
+ * GREEN için NotificationService sınıfı oluşturulmalıdır.
+ */
 @ExtendWith(MockitoExtension.class)
 public class NotificationServiceTest {
 
@@ -25,39 +33,28 @@ public class NotificationServiceTest {
     @InjectMocks
     private NotificationService notificationService;
 
-    private NotificationRequestDTO validRequest;
-
-    @BeforeEach
-    void setUp() {
-        validRequest = new NotificationRequestDTO(
-                "user-123",
-                "req-456",
-                "MECHANIC_ASSIGNED",
-                "Aracınız için bir teknisyen atandı."
-        );
-    }
-
     @Test
-    @DisplayName("TDD 1: Bildirim başarıyla kaydedilmeli ve SENT statüsünde dönmeli")
-    void shouldCreateNotificationSuccessfully() {
+    void shouldReturnNotificationWhenIdExists() {
         // GIVEN
-        Notification savedNotification = new Notification();
-        savedNotification.setId("notif-001");
-        savedNotification.setRecipientId(validRequest.getRecipientId());
-        savedNotification.setStatus("SENT"); // İş mantığımızın beklentisi
+        Notification notification = new Notification();
+        notification.setId("notif-001");
+        notification.setRecipientId("user-001");
+        notification.setRequestId("req-001");
+        notification.setType("MECHANIC_ASSIGNED");
+        notification.setMessage("Mechanic assigned to your request");
+        notification.setStatus("SENT");
+        notification.setSentAt(LocalDateTime.of(2025, 1, 1, 10, 0));
 
-        // Repository save edildiğinde bu objeyi dönecek şekilde mock'luyoruz
-        when(notificationRepository.save(any(Notification.class))).thenReturn(savedNotification);
+        when(notificationRepository.findById("notif-001"))
+                .thenReturn(Optional.of(notification));
 
         // WHEN
-        NotificationResponseDTO response = notificationService.createNotification(validRequest);
+        NotificationResponseDTO result = notificationService.getNotificationById("notif-001");
 
         // THEN
-        assertNotNull(response.getId());
-        assertEquals("SENT", response.getStatus());
-        assertEquals(validRequest.getRecipientId(), response.getRecipientId());
-        
-        // Veritabanına kaydetme işleminin 1 kere yapıldığını doğrula
-        verify(notificationRepository, times(1)).save(any(Notification.class));
+        assertNotNull(result);
+        assertEquals("notif-001", result.getId());
+        assertEquals("SENT", result.getStatus());
+        assertEquals("user-001", result.getRecipientId());
     }
 }
