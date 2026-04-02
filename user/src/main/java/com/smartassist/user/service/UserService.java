@@ -1,13 +1,14 @@
 package com.smartassist.user.service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.smartassist.user.dto.UserResponseDTO;
+
 import com.smartassist.user.dto.UserRequestDTO;
+import com.smartassist.user.dto.UserResponseDTO;
 import com.smartassist.user.exception.UserNotFoundException;
 import com.smartassist.user.model.User;
 import com.smartassist.user.repository.UserRepository;
 
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -17,9 +18,7 @@ public class UserService implements IUserService {
 
     @Override
     public UserResponseDTO getUserById(String id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
-        return convertToResponseDTO(user);
+        return convertToResponseDTO(findUserOrThrow(id));
     }
 
     @Override
@@ -29,28 +28,24 @@ public class UserService implements IUserService {
                 .email(request.getEmail())
                 .phone(request.getPhone())
                 .role(request.getRole())
-                .status("ACTIVE") // Varsayılan durum
+                .status("ACTIVE")
                 .build();
         return convertToResponseDTO(userRepository.save(user));
     }
 
     @Override
     public UserResponseDTO updateUser(String id, UserRequestDTO request) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
-        
+        User user = findUserOrThrow(id);
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
         user.setRole(request.getRole());
-        
         return convertToResponseDTO(userRepository.save(user));
     }
 
     @Override
     public UserResponseDTO updateRole(String id, String role) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
+        User user = findUserOrThrow(id);
         user.setRole(role);
         return convertToResponseDTO(userRepository.save(user));
     }
@@ -65,13 +60,16 @@ public class UserService implements IUserService {
 
     @Override
     public UserResponseDTO updateStatus(String id, String status) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
+        User user = findUserOrThrow(id);
         user.setStatus(status);
         return convertToResponseDTO(userRepository.save(user));
     }
 
-    // Mapper Metodu: Entity -> DTO (RMM Level 3 Hazırlığı)
+    private User findUserOrThrow(String id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
+    }
+
     private UserResponseDTO convertToResponseDTO(User user) {
         return UserResponseDTO.builder()
                 .id(user.getId())
