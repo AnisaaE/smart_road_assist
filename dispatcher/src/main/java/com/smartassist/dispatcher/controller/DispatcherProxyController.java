@@ -16,6 +16,9 @@ public class DispatcherProxyController {
 
     private static final String REQUESTS_PATH = "/api/requests";
     private static final String MECHANICS_PATH = "/api/mechanics";
+    private static final String USERS_PATH = "/api/users";
+    private static final String PAYMENTS_PATH = "/api/payments";
+    private static final String NOTIFICATIONS_PATH = "/api/notifications";
 
     private final DispatcherProxyService dispatcherProxyService;
 
@@ -29,5 +32,23 @@ public class DispatcherProxyController {
     public ResponseEntity<byte[]> proxyMechanicService(HttpServletRequest request,
                                                        @RequestBody(required = false) byte[] requestBody) {
         return dispatcherProxyService.forwardToMechanicService(request, requestBody);
+    }
+
+    @RequestMapping({USERS_PATH, USERS_PATH + "/**"})
+    public ResponseEntity<byte[]> proxyUserService(HttpServletRequest request,
+                                                   @RequestBody(required = false) byte[] requestBody) {
+        return dispatcherProxyService.forwardToUserService(request, requestBody);
+    }
+
+    @RequestMapping({PAYMENTS_PATH, PAYMENTS_PATH + "/**"})
+    public ResponseEntity<byte[]> proxyPaymentService(HttpServletRequest request,
+                                                      @RequestBody(required = false) byte[] requestBody) {
+        return dispatcherProxyService.forwardToPaymentService(request, requestBody);
+    }
+
+    @RequestMapping({NOTIFICATIONS_PATH, NOTIFICATIONS_PATH + "/**"})
+    public ResponseEntity<byte[]> proxyNotificationService(HttpServletRequest request,
+                                                           @RequestBody(required = false) byte[] requestBody) {
+        return dispatcherProxyService.forwardToNotificationService(request, requestBody);
     }
 }

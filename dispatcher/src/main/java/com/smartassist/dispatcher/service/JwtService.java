@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -13,7 +14,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.smartassist.dispatcher.model.AuthenticatedUser;
 
 @Service
 public class JwtService {
@@ -35,6 +38,34 @@ public class JwtService {
             return header + "." + payload + "." + signature;
         } catch (JsonProcessingException exception) {
             throw new IllegalStateException("Could not serialize JWT payload", exception);
+        }
+    }
+
+    public Optional<AuthenticatedUser> parseToken(String token) {
+        try {
+            String[] parts = token.split("\\.");
+            if (parts.length != 3) {
+                return Optional.empty();
+            }
+
+            String signature = sign(parts[0] + "." + parts[1]);
+            if (!signature.equals(parts[2])) {
+                return Optional.empty();
+            }
+
+            Map<String, Object> payload = objectMapper.readValue(
+                    Base64.getUrlDecoder().decode(parts[1]),
+                    new TypeReference<>() {
+                    }
+            );
+
+            return Optional.of(new AuthenticatedUser(
+                    payload.get("sub").toString(),
+                    payload.get("userId").toString(),
+                    payload.get("role").toString()
+            ));
+        } catch (Exception exception) {
+            return Optional.empty();
         }
     }
 

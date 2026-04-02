@@ -14,6 +14,18 @@ public class DispatcherServiceResolver {
             return "mechanics";
         }
 
+        if (requestUri.startsWith("/api/users")) {
+            return "users";
+        }
+
+        if (requestUri.startsWith("/api/payments")) {
+            return "payments";
+        }
+
+        if (requestUri.startsWith("/api/notifications")) {
+            return "notifications";
+        }
+
         return null;
     }
 }
