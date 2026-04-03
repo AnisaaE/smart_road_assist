@@ -1,6 +1,6 @@
 package com.smartassist.notification.exception;
 
-import org.springframework.http.HttpStatus;
+/*import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,4 +19,4 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleAlreadyRead(AlreadyReadException ex) {
         return new ResponseEntity<>(Map.of("error", ex.getMessage()), HttpStatus.BAD_REQUEST);
     }
-}
+}*/
