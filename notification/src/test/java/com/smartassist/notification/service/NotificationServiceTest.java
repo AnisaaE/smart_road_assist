@@ -19,9 +19,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-/**
- * TDD — RED → GREEN
- */
 @ExtendWith(MockitoExtension.class)
 public class NotificationServiceTest {
 
@@ -36,7 +33,6 @@ public class NotificationServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Test verisi: Gönderilmiş (SENT) bildirim
         sentNotification = new Notification();
         sentNotification.setId("notif-001");
         sentNotification.setRecipientId("user-001");
@@ -46,7 +42,6 @@ public class NotificationServiceTest {
         sentNotification.setStatus("SENT");
         sentNotification.setSentAt(LocalDateTime.of(2025, 1, 1, 10, 0));
 
-        // Test verisi: Okunmuş (READ) bildirim
         readNotification = new Notification();
         readNotification.setId("notif-002");
         readNotification.setRecipientId("user-001");
@@ -57,19 +52,16 @@ public class NotificationServiceTest {
         readNotification.setSentAt(LocalDateTime.of(2025, 1, 1, 11, 0));
     }
 
-    // ─── getNotificationById Testleri ──────────────────────────────────────────
+    // ─── getNotificationById ──────────────────────────────────────────────────
 
     @Test
     @DisplayName("ID mevcut olduğunda bildirimi başarıyla dönmeli")
     void shouldReturnNotificationWhenIdExists() {
-        // GIVEN
         when(notificationRepository.findById("notif-001"))
                 .thenReturn(Optional.of(sentNotification));
 
-        // WHEN
         var result = notificationService.getNotificationById("notif-001");
 
-        // THEN
         assertNotNull(result);
         assertEquals("notif-001", result.getId());
         assertEquals("SENT", result.getStatus());
@@ -79,11 +71,9 @@ public class NotificationServiceTest {
     @Test
     @DisplayName("Olmayan ID için NotFoundException fırlatmalı")
     void getNotification_ShouldThrowNotFoundException() {
-        // GIVEN
         when(notificationRepository.findById("not-exist"))
                 .thenReturn(Optional.empty());
 
-        // WHEN & THEN
         NotificationNotFoundException ex = assertThrows(
                 NotificationNotFoundException.class,
                 () -> notificationService.getNotificationById("not-exist")
@@ -91,25 +81,53 @@ public class NotificationServiceTest {
         assertTrue(ex.getMessage().contains("not-exist"));
     }
 
-    // ─── markAsRead Testleri ───────────────────────────────────────────────────
+    // ─── markAsRead ───────────────────────────────────────────────────────────
 
     @Test
     @DisplayName("SENT durumundaki bildirimi READ olarak güncellemeli")
     void markAsRead_ShouldUpdateStatus() {
-        // GIVEN
         when(notificationRepository.findById("notif-001"))
                 .thenReturn(Optional.of(sentNotification));
 
         Notification saved = new Notification();
         saved.setId("notif-001");
-        saved.setStatus("READ"); // Güncellenmiş hali
+        saved.setRecipientId("user-001");
+        saved.setRequestId("req-001");
+        saved.setType("MECHANIC_ASSIGNED");
+        saved.setMessage("Mechanic assigned");
+        saved.setStatus("READ");
+        saved.setSentAt(sentNotification.getSentAt());
 
         when(notificationRepository.save(any(Notification.class))).thenReturn(saved);
 
-        // WHEN
         var result = notificationService.markAsRead("notif-001");
 
-        // THEN
         assertEquals("READ", result.getStatus());
         verify(notificationRepository, times(1)).save(any(Notification.class));
     }
+
+    @Test
+    @DisplayName("Zaten READ olan bildirim için AlreadyReadException fırlatmalı")
+    void markAsRead_ShouldThrowAlreadyReadException() {
+        when(notificationRepository.findById("notif-002"))
+                .thenReturn(Optional.of(readNotification));
+
+        AlreadyReadException ex = assertThrows(
+                AlreadyReadException.class,
+                () -> notificationService.markAsRead("notif-002")
+        );
+        assertTrue(ex.getMessage().contains("already READ"));
+    }
+
+    @Test
+    @DisplayName("Olmayan ID ile markAsRead çağrılınca NotFoundException fırlatmalı")
+    void markAsRead_ShouldThrowNotFoundException_WhenIdNotExist() {
+        when(notificationRepository.findById("not-exist"))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                NotificationNotFoundException.class,
+                () -> notificationService.markAsRead("not-exist")
+        );
+    }
+}
