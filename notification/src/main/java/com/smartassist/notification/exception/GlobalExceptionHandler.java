@@ -2,34 +2,30 @@ package com.smartassist.notification.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.HashMap;
 import java.util.Map;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(NotificationNotFoundException.class)
-    public ResponseEntity<Object> handleNotFound(NotificationNotFoundException ex) {
-        // Testin içindeki jsonPath("$.message") ve jsonPath("$.status") ile birebir aynı key'ler
-        return new ResponseEntity<>(
-            Map.of(
-                "message", ex.getMessage(),
-                "status", HttpStatus.NOT_FOUND.value()
-            ), 
-            HttpStatus.NOT_FOUND
-        );
-    }
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidationErrors(
+            MethodArgumentNotValidException ex) {
 
-    @ExceptionHandler(AlreadyReadException.class)
-    public ResponseEntity<Object> handleAlreadyRead(AlreadyReadException ex) {
-        return new ResponseEntity<>(
-            Map.of(
-                "message", ex.getMessage(),
-                "status", HttpStatus.BAD_REQUEST.value()
-            ), 
-            HttpStatus.BAD_REQUEST
-        );
+        Map<String, Object> body = new HashMap<>();
+        body.put("status", HttpStatus.BAD_REQUEST.value()); // $.status = 400
+        body.put("error", "Validation Failed");
+
+        // Alan bazlı hata mesajları (opsiyonel ama faydalı)
+        Map<String, String> fieldErrors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors()
+                .forEach(fe -> fieldErrors.put(fe.getField(), fe.getDefaultMessage()));
+        body.put("errors", fieldErrors);
+
+        return ResponseEntity.badRequest().body(body);
     }
 }

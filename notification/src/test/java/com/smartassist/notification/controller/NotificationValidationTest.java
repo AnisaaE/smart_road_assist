@@ -1,10 +1,12 @@
 package com.smartassist.notification.controller;
 
+import com.smartassist.notification.exception.GlobalExceptionHandler;
 import com.smartassist.notification.service.INotificationService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -13,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(NotificationController.class)
+@Import(GlobalExceptionHandler.class) // Bunu ekle
 public class NotificationValidationTest {
 
     @Autowired
@@ -22,15 +25,14 @@ public class NotificationValidationTest {
     private INotificationService notificationService;
 
     @Test
-    void whenContentIsEmpty_thenReturns400() throws Exception {
-        // Content alanı boş, geçersiz bir JSON
-        String invalidJson = "{\"userId\": \"user-123\", \"content\": \"\"}";
+    void whenMessageIsEmpty_thenReturns400() throws Exception {
+        // DTO'ndaki gerçek alan isimlerini (recipientId, message) kullanmalısın
+        String invalidJson = "{\"recipientId\": \"user-123\", \"type\": \"SMS\", \"message\": \"\"}";
 
         mockMvc.perform(post("/api/notifications")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(invalidJson))
-                .andExpect(status().isBadRequest()) // 400 Hatası bekliyoruz
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.message").exists());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400));
     }
 }

@@ -1,5 +1,6 @@
 package com.smartassist.notification.dto;
 
+import jakarta.validation.constraints.NotBlank; // Bu satırı ekle
 import java.io.Serializable;
 
 /**
@@ -8,9 +9,15 @@ import java.io.Serializable;
  */
 public class NotificationRequestDTO implements Serializable {
 
+    @NotBlank(message = "Recipient ID cannot be empty") // Boş olamaz
     private String recipientId;
+
     private String requestId;
+
+    @NotBlank(message = "Type cannot be empty") // Tip zorunlu
     private String type;
+
+    @NotBlank(message = "Message cannot be empty") // Testin beklediği yer burası
     private String message;
 
     // ─── Constructors ─────────────────────────────────────────────────────────
