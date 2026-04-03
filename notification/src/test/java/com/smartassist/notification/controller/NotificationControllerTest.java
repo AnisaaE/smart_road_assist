@@ -17,54 +17,64 @@ import java.time.LocalDateTime;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
-@WebMvcTest(NotificationController.class) // Sadece Web katmanını ayağa kaldırır
+@WebMvcTest(NotificationController.class) // Sadece Web (Controller) katmanını ayağa kaldırır
 public class NotificationControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private INotificationService notificationService; // Servisi mock'luyoruz
+    private INotificationService notificationService; // Servis katmanını mock'luyoruz
 
     @Autowired
-    private ObjectMapper objectMapper; // DTO'yu JSON'a çevirmek için
+    private ObjectMapper objectMapper; // DTO nesnelerini JSON'a çevirmek için
 
     private NotificationRequestDTO validRequest;
     private NotificationResponseDTO mockResponse;
 
     @BeforeEach
     void setUp() {
+        // Testlerde kullanılacak örnek veriler
         validRequest = new NotificationRequestDTO(
-                "user-123", "req-456", "MECHANIC_ASSIGNED", "Yola çıktık!"
+                "user-123", 
+                "req-456", 
+                "MECHANIC_ASSIGNED", 
+                "Yola çıktık!"
         );
 
         mockResponse = new NotificationResponseDTO(
-                "notif-001", "user-123", "req-456", 
-                "MECHANIC_ASSIGNED", "Yola çıktık!", "SENT", LocalDateTime.now()
+                "notif-001", 
+                "user-123", 
+                "req-456", 
+                "MECHANIC_ASSIGNED", 
+                "Yola çıktık!", 
+                "SENT", 
+                LocalDateTime.now()
         );
     }
 
     @Test
-    @DisplayName("POST /notifications - Başarılı bir şekilde bildirim oluşturmalı")
+    @DisplayName("POST /api/notifications - Başarılı bildirim oluşturma (201)")
     void shouldCreateNotificationAndReturn201() throws Exception {
-        // GIVEN
+        // GIVEN: Servis metodunun ne döneceğini simüle ediyoruz
         when(notificationService.createNotification(any(NotificationRequestDTO.class)))
                 .thenReturn(mockResponse);
 
-        // WHEN & THEN
+        // WHEN & THEN: İsteği at ve sonuçları doğrula
         mockMvc.perform(post("/api/notifications")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(validRequest)))
-                .andExpect(status().isCreated()) // 201 Created bekliyoruz
+                .andExpect(status().isCreated()) // HTTP 201 bekliyoruz
                 .andExpect(jsonPath("$.id").value("notif-001"))
                 .andExpect(jsonPath("$.status").value("SENT"));
     }
+
     @Test
-    @DisplayName("GET /api/notifications/{id} - ID ile bildirim detaylarını getirmeli")
+    @DisplayName("GET /api/notifications/{id} - ID ile bildirim getirme (200)")
     void shouldReturnNotificationById() throws Exception {
         // GIVEN
         String notifId = "notif-001";
@@ -72,7 +82,7 @@ public class NotificationControllerTest {
 
         // WHEN & THEN
         mockMvc.perform(get("/api/notifications/" + notifId))
-                .andExpect(status().isOk()) // 200 OK bekliyoruz
+                .andExpect(status().isOk()) // HTTP 200 bekliyoruz
                 .andExpect(jsonPath("$.id").value(notifId))
                 .andExpect(jsonPath("$.recipientId").value("user-123"))
                 .andExpect(jsonPath("$.status").value("SENT"));
