@@ -130,4 +130,36 @@ public class NotificationServiceTest {
                 () -> notificationService.markAsRead("not-exist")
         );
     }
+    @Test
+    @DisplayName("getNotificationById - Olmayan ID sorgulandığında NotFound fırlatmalı")
+    void shouldThrowNotFound_WhenIdDoesNotExist() {
+        // GIVEN: Repository boş dönerse
+        when(notificationRepository.findById("non-existent-id"))
+                .thenReturn(Optional.empty());
+
+        // WHEN & THEN: Metot çağrıldığında bu hatayı fırlatması lazım
+        assertThrows(NotificationNotFoundException.class, () -> {
+            notificationService.getNotificationById("non-existent-id");
+        });
+    }
+
+    @Test
+    @DisplayName("markAsRead - Zaten okunmuş bildirim için AlreadyReadException fırlatmalı")
+    void shouldThrowAlreadyRead_WhenStatusIsAlreadyRead() {
+        // GIVEN: Zaten "READ" olan bir bildirim hazırla
+        Notification alreadyReadNotification = new Notification();
+        alreadyReadNotification.setId("notif-1");
+        alreadyReadNotification.setStatus("READ");
+
+        when(notificationRepository.findById("notif-1"))
+                .thenReturn(Optional.of(alreadyReadNotification));
+
+        // WHEN & THEN: Tekrar okundu yapmak istersen patlamalı
+        assertThrows(AlreadyReadException.class, () -> {
+            notificationService.markAsRead("notif-1");
+        });
+        
+        // Repository.save() metodunun ASLA çağrılmadığını doğrula (Zırhlı kontrol)
+        verify(notificationRepository, never()).save(any());
+    }
 }
