@@ -13,3 +13,33 @@ scrape_configs:
     static_configs:
       - targets:
           - dispatcher:8080
+
+  - job_name: user
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - user:8083
+
+  - job_name: request
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - request:8082
+
+  - job_name: mechanic
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - mechanic:8081
+
+  - job_name: payment
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - payment:8084
+
+  - job_name: notification
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - notification:8085
