@@ -26,10 +26,10 @@ public class NotificationValidationTest {
 
     @Test
     void whenMessageIsEmpty_thenReturns400() throws Exception {
-        // DTO'ndaki gerçek alan isimlerini (recipientId, message) kullanmalısın
         String invalidJson = "{\"recipientId\": \"user-123\", \"type\": \"SMS\", \"message\": \"\"}";
 
-        mockMvc.perform(post("/notifications")
+        // BURAYI DEĞİŞTİR: Başına /api ekle
+        mockMvc.perform(post("/api/notifications") 
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(invalidJson))
                 .andExpect(status().isBadRequest())
