@@ -11,7 +11,10 @@ public class NotificationResponseDTO {
     private String status;
     private LocalDateTime sentAt;
 
-    // Tüm alanları içeren Constructor (Servis için kritik)
+    // 1. BOŞ CONSTRUCTOR EKLE (Test için kritik)
+    public NotificationResponseDTO() {
+    }
+
     public NotificationResponseDTO(String id, String recipientId, String requestId, 
                                    String type, String message, String status, LocalDateTime sentAt) {
         this.id = id;
@@ -23,10 +26,15 @@ public class NotificationResponseDTO {
         this.sentAt = sentAt;
     }
 
-    // Getters (Testlerin doğrulanması için gerekli)
+    // 2. SETTER METODLARINI EKLE (Testte verileri set edebilmen için)
+    public void setRecipientId(String recipientId) { this.recipientId = recipientId; }
+    public void setMessage(String message) { this.message = message; }
+    public void setStatus(String status) { this.status = status; }
+    public void setId(String id) { this.id = id; }
+
+    // Getters
     public String getId() { return id; }
     public String getRecipientId() { return recipientId; }
     public String getStatus() { return status; }
     public String getMessage() { return message; }
-    // Diğer getter'ları ihtiyaca göre ekleyebilirsin
 }
