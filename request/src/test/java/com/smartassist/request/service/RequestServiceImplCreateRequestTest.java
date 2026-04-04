@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Instant;
 
@@ -17,11 +18,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.smartassist.request.dto.request.CreateRequestRequest;
 import com.smartassist.request.dto.response.RequestResponse;
+import com.smartassist.request.exception.RequestUserNotFoundException;
 import com.smartassist.request.mapper.RequestMapper;
 import com.smartassist.request.model.AssistanceRequest;
 import com.smartassist.request.model.RequestStatus;
 import com.smartassist.request.model.RequestType;
 import com.smartassist.request.repository.RequestRepository;
+import com.smartassist.request.service.UserDirectoryService;
 import com.smartassist.request.service.impl.RequestServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,6 +36,9 @@ class RequestServiceImplCreateRequestTest {
     @Mock
     private RequestMapper requestMapper;
 
+    @Mock
+    private UserDirectoryService userDirectoryService;
+
     @InjectMocks
     private RequestServiceImpl requestService;
 
@@ -43,6 +49,8 @@ class RequestServiceImplCreateRequestTest {
                 RequestType.BATTERY,
                 "Battery is dead",
                 "Downtown garage");
+
+        when(userDirectoryService.userExists("user-123")).thenReturn(true);
 
         when(requestMapper.toEntity(eq(request), any(Instant.class))).thenAnswer(invocation ->
                 AssistanceRequest.builder()
@@ -97,5 +105,20 @@ class RequestServiceImplCreateRequestTest {
 
         assertThat(response.id()).isEqualTo("req-1");
         assertThat(response.status()).isEqualTo(RequestStatus.CREATED);
+    }
+
+    @Test
+    void createRequestShouldRejectUnknownUserId() {
+        CreateRequestRequest request = new CreateRequestRequest(
+                "missing-user",
+                RequestType.BATTERY,
+                "Battery is dead",
+                "Downtown garage");
+
+        when(userDirectoryService.userExists("missing-user")).thenReturn(false);
+
+        assertThatThrownBy(() -> requestService.createRequest(request))
+                .isInstanceOf(RequestUserNotFoundException.class)
+                .hasMessage("User not found: missing-user");
     }
 }

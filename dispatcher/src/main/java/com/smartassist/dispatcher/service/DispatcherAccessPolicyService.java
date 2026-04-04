@@ -26,6 +26,10 @@ public class DispatcherAccessPolicyService {
         String requestUri = request.getRequestURI();
         String method = request.getMethod();
 
+        if ("/api/users".equals(requestUri)) {
+            return HttpMethod.GET.matches(method) && hasAnyRole(user, "ADMIN");
+        }
+
         if (HttpMethod.DELETE.matches(method) || (HttpMethod.PUT.matches(method) && requestUri.endsWith("/role"))) {
             return hasAnyRole(user, "ADMIN");
         }

@@ -65,7 +65,7 @@ public class NotificationControllerTest {
                 .thenReturn(mockResponse);
 
         // WHEN & THEN: İsteği at ve sonuçları doğrula
-        mockMvc.perform(post("/api/notifications")
+        mockMvc.perform(post("/notifications")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(validRequest)))
                 .andExpect(status().isCreated()) // HTTP 201 bekliyoruz
@@ -81,7 +81,7 @@ public class NotificationControllerTest {
         when(notificationService.getNotificationById(notifId)).thenReturn(mockResponse);
 
         // WHEN & THEN
-        mockMvc.perform(get("/api/notifications/" + notifId))
+        mockMvc.perform(get("/notifications/" + notifId))
                 .andExpect(status().isOk()) // HTTP 200 bekliyoruz
                 .andExpect(jsonPath("$.id").value(notifId))
                 .andExpect(jsonPath("$.recipientId").value("user-123"))
