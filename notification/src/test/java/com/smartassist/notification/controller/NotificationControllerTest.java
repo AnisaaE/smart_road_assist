@@ -21,24 +21,23 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(NotificationController.class) // Sadece Web (Controller) katmanını ayağa kaldırır
+@WebMvcTest(NotificationController.class)
 public class NotificationControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private INotificationService notificationService; // Servis katmanını mock'luyoruz
+    private INotificationService notificationService;
 
     @Autowired
-    private ObjectMapper objectMapper; // DTO nesnelerini JSON'a çevirmek için
+    private ObjectMapper objectMapper;
 
     private NotificationRequestDTO validRequest;
     private NotificationResponseDTO mockResponse;
 
     @BeforeEach
     void setUp() {
-        // Testlerde kullanılacak örnek veriler
         validRequest = new NotificationRequestDTO(
                 "user-123", 
                 "req-456", 
@@ -60,15 +59,14 @@ public class NotificationControllerTest {
     @Test
     @DisplayName("POST /api/notifications - Başarılı bildirim oluşturma (201)")
     void shouldCreateNotificationAndReturn201() throws Exception {
-        // GIVEN: Servis metodunun ne döneceğini simüle ediyoruz
         when(notificationService.createNotification(any(NotificationRequestDTO.class)))
                 .thenReturn(mockResponse);
 
-        // WHEN & THEN: İsteği at ve sonuçları doğrula
-        mockMvc.perform(post("/notifications")
+        // DÜZELTME: Yol "/api/notifications" olarak güncellendi
+        mockMvc.perform(post("/api/notifications")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(validRequest)))
-                .andExpect(status().isCreated()) // HTTP 201 bekliyoruz
+                .andExpect(status().isCreated()) 
                 .andExpect(jsonPath("$.id").value("notif-001"))
                 .andExpect(jsonPath("$.status").value("SENT"));
     }
@@ -76,13 +74,12 @@ public class NotificationControllerTest {
     @Test
     @DisplayName("GET /api/notifications/{id} - ID ile bildirim getirme (200)")
     void shouldReturnNotificationById() throws Exception {
-        // GIVEN
         String notifId = "notif-001";
         when(notificationService.getNotificationById(notifId)).thenReturn(mockResponse);
 
-        // WHEN & THEN
-        mockMvc.perform(get("/notifications/" + notifId))
-                .andExpect(status().isOk()) // HTTP 200 bekliyoruz
+        // DÜZELTME: Yol "/api/notifications/" olarak güncellendi
+        mockMvc.perform(get("/api/notifications/" + notifId))
+                .andExpect(status().isOk()) 
                 .andExpect(jsonPath("$.id").value(notifId))
                 .andExpect(jsonPath("$.recipientId").value("user-123"))
                 .andExpect(jsonPath("$.status").value("SENT"));
