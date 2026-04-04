@@ -71,6 +71,14 @@ public class UserService implements IUserService {
     @Override
     public UserResponseDTO updateStatus(String id, String status) {
         User user = findUserOrThrow(id);
+        
+        // Testin GREEN olması için gereken kontrol:
+        // Eğer gelen statü geçerli listede yoksa hata fırlat
+        List<String> validStatuses = List.of("ACTIVE", "BUSY", "OFFLINE");
+        if (!validStatuses.contains(status)) {
+            throw new com.smartassist.user.exception.InvalidStatusException("Invalid status: " + status);
+        }
+
         user.setStatus(status);
         return convertToResponseDTO(userRepository.save(user));
     }
