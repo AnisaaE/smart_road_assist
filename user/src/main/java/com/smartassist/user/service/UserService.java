@@ -1,15 +1,14 @@
 package com.smartassist.user.service;
 
 import java.util.List;
-
 import org.springframework.stereotype.Service;
-
 import com.smartassist.user.dto.UserRequestDTO;
 import com.smartassist.user.dto.UserResponseDTO;
 import com.smartassist.user.exception.UserNotFoundException;
+import com.smartassist.user.exception.UserAlreadyExistsException; // EKLENDİ
+import com.smartassist.user.exception.InvalidStatusException;     // EKLENDİ
 import com.smartassist.user.model.User;
 import com.smartassist.user.repository.UserRepository;
-
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -33,6 +32,11 @@ public class UserService implements IUserService {
 
     @Override
     public UserResponseDTO createUser(UserRequestDTO request) {
+        // GREEN YAPAN KONTROL: Önce email var mı diye bakıyoruz
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new com.smartassist.user.exception.UserAlreadyExistsException("Email already in use: " + request.getEmail());
+        }
+
         User user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
@@ -40,6 +44,7 @@ public class UserService implements IUserService {
                 .role(request.getRole())
                 .status("ACTIVE")
                 .build();
+                
         return convertToResponseDTO(userRepository.save(user));
     }
 
@@ -98,4 +103,5 @@ public class UserService implements IUserService {
                 .status(user.getStatus())
                 .build();
     }
+    
 }
