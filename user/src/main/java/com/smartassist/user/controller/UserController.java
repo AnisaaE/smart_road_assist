@@ -22,6 +22,7 @@ import com.smartassist.user.dto.UserResponseDTO;
 import com.smartassist.user.exception.UserNotFoundException;
 import com.smartassist.user.service.IUserService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -50,9 +51,15 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO request) {
+    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO request) { // @Valid eklendi
         UserResponseDTO createdUser = userService.createUser(request);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable("id") String id, @Valid @RequestBody UserRequestDTO request) { // @Valid eklendi
+        UserResponseDTO updatedUser = userService.updateUser(id, request);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @DeleteMapping("/{id}")
@@ -61,11 +68,6 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable("id") String id, @RequestBody UserRequestDTO request) {
-        UserResponseDTO updatedUser = userService.updateUser(id, request);
-        return ResponseEntity.ok(updatedUser);
-    }
 
     @PutMapping("/{id}/role")
     public ResponseEntity<UserResponseDTO> updateUserRole(@PathVariable("id") String id,
