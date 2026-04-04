@@ -1,7 +1,7 @@
 package com.smartassist.payment.service;
 
 import com.smartassist.payment.dto.PaymentRequestDTO;
-import com.smartassist.payment.exception.PaymentAlreadyExistsException; // Bu sınıfı birazdan oluşturacağız
+import com.smartassist.payment.exception.PaymentAlreadyExistsException;
 import com.smartassist.payment.repository.PaymentRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 public class PaymentIdempotencyTest {
 
     @Mock
-    private PaymentRepository paymentRepository;
+    private PaymentRepository repository;
 
     @InjectMocks
     private PaymentService paymentService;
@@ -29,7 +29,7 @@ public class PaymentIdempotencyTest {
     @DisplayName("Aynı requestId ile ikinci kez ödeme oluşturulmaya çalışıldığında hata fırlatmalı")
     void whenDuplicateRequestId_thenThrowPaymentAlreadyExistsException() {
         // GIVEN
-        String duplicateId = "req-12345";
+        String duplicateId = "unique-req-id-123";
         PaymentRequestDTO request = PaymentRequestDTO.builder()
                 .requestId(duplicateId)
                 .userId("user-1")
@@ -37,15 +37,13 @@ public class PaymentIdempotencyTest {
                 .paymentMethod("CARD")
                 .build();
 
-        // Repository'de bu requestId'nin zaten var olduğunu simüle ediyoruz
-        when(paymentRepository.existsByRequestId(duplicateId)).thenReturn(true);
+        when(repository.existsByRequestId(duplicateId)).thenReturn(true);
 
-        // WHEN & THEN: Servis metodu çağrıldığında exception bekliyoruz
-        assertThrows(PaymentAlreadyExistsException.class, () -> {
-            paymentService.createPayment(request);
-        });
+        // WHEN & THEN
+        assertThrows(PaymentAlreadyExistsException.class, () ->
+                paymentService.createPayment(request)
+        );
 
-        // Doğrulama: Hata fırladığı için veritabanına kaydetme (save) işlemi ASLA yapılmamalı
-        verify(paymentRepository, never()).save(any());
+        verify(repository, never()).save(any());
     }
 }

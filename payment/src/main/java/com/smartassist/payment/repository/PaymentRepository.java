@@ -5,6 +5,9 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.Optional;
 
 public interface PaymentRepository extends MongoRepository<Payment, String> {
-    // Testin (shouldReturnPaymentByRequestId) çalışması için bu şart:
+    
+    // BU SATIRI EKLE: Spring senin için bu sorguyu otomatik oluşturacak
+    boolean existsByRequestId(String requestId);
+
     Optional<Payment> findByRequestId(String requestId);
 }
