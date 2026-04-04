@@ -1,5 +1,6 @@
 package com.smartassist.user.controller;
 
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,6 +37,11 @@ public class UserController {
         errorBody.put("message", ex.getMessage());
         errorBody.put("status", HttpStatus.NOT_FOUND.value());
         return new ResponseEntity<>(errorBody, HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @GetMapping("/{id}")

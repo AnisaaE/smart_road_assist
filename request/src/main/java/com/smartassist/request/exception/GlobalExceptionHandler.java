@@ -23,6 +23,12 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(ex.getMessage());
     }
 
+    @ExceptionHandler(RequestUserNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleRequestUserNotFoundException(RequestUserNotFoundException ex) {
+        return new ErrorResponse(ex.getMessage());
+    }
+
     @ExceptionHandler(InvalidRequestStateException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleInvalidRequestStateException(InvalidRequestStateException ex) {

@@ -31,7 +31,7 @@ public class GlobalExceptionHandlerTest {
         when(notificationService.getNotificationById(invalidId))
                 .thenThrow(new NotificationNotFoundException("Notification not found with id: " + invalidId));
 
-        mockMvc.perform(get("/api/notifications/" + invalidId)
+        mockMvc.perform(get("/notifications/" + invalidId)
                 .contentType(MediaType.APPLICATION_JSON)) // JSON standarttır
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Notification not found with id: 999"))

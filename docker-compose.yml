@@ -1,0 +1,190 @@
+services:
+  dispatcher-db:
+    image: mongo:7
+    container_name: dispatcher-db
+    restart: unless-stopped
+    volumes:
+      - dispatcher_db_data:/data/db
+    networks:
+      - smart-road-internal
+
+  user-db:
+    image: mongo:7
+    container_name: user-db
+    restart: unless-stopped
+    volumes:
+      - user_db_data:/data/db
+    networks:
+      - smart-road-internal
+
+  request-db:
+    image: mongo:7
+    container_name: request-db
+    restart: unless-stopped
+    volumes:
+      - request_db_data:/data/db
+    networks:
+      - smart-road-internal
+
+  mechanic-db:
+    image: mongo:7
+    container_name: mechanic-db
+    restart: unless-stopped
+    volumes:
+      - mechanic_db_data:/data/db
+    networks:
+      - smart-road-internal
+
+  mechanic-redis:
+    image: redis:7-alpine
+    container_name: mechanic-redis
+    restart: unless-stopped
+    volumes:
+      - mechanic_redis_data:/data
+    networks:
+      - smart-road-internal
+
+  payment-db:
+    image: mongo:7
+    container_name: payment-db
+    restart: unless-stopped
+    volumes:
+      - payment_db_data:/data/db
+    networks:
+      - smart-road-internal
+
+  notification-db:
+    image: mongo:7
+    container_name: notification-db
+    restart: unless-stopped
+    volumes:
+      - notification_db_data:/data/db
+    networks:
+      - smart-road-internal
+
+  user:
+    build:
+      context: ./user
+    container_name: user-service
+    restart: unless-stopped
+    depends_on:
+      - user-db
+    environment:
+      SERVER_PORT: 8083
+      SPRING_DATA_MONGODB_URI: mongodb://user-db:27017/user_db
+    expose:
+      - "8083"
+    networks:
+      - smart-road-internal
+
+  request:
+    build:
+      context: ./request
+    container_name: request-service
+    restart: unless-stopped
+    depends_on:
+      - request-db
+    environment:
+      SERVER_PORT: 8082
+      SPRING_DATA_MONGODB_URI: mongodb://request-db:27017/smart_road_assist_request
+      USER_SERVICE_BASE_URL: http://user:8083
+      DISPATCHER_ENFORCE_INTERNAL_HEADER: "true"
+      DISPATCHER_INTERNAL_HEADER_NAME: X-Dispatcher-Secret
+      DISPATCHER_SHARED_SECRET: smart-road-assist-internal-secret
+    expose:
+      - "8082"
+    networks:
+      - smart-road-internal
+
+  mechanic:
+    build:
+      context: ./mechanic
+    container_name: mechanic-service
+    restart: unless-stopped
+    depends_on:
+      - mechanic-db
+      - mechanic-redis
+    environment:
+      SERVER_PORT: 8081
+      SPRING_DATA_MONGODB_URI: mongodb://mechanic-db:27017/mechanic
+      SPRING_DATA_REDIS_HOST: mechanic-redis
+      SPRING_DATA_REDIS_PORT: 6379
+      DISPATCHER_ENFORCE_INTERNAL_HEADER: "true"
+      DISPATCHER_INTERNAL_HEADER_NAME: X-Dispatcher-Secret
+      DISPATCHER_SHARED_SECRET: smart-road-assist-internal-secret
+    expose:
+      - "8081"
+    networks:
+      - smart-road-internal
+
+  payment:
+    build:
+      context: ./payment
+    container_name: payment-service
+    restart: unless-stopped
+    depends_on:
+      - payment-db
+    environment:
+      SERVER_PORT: 8084
+      SPRING_DATA_MONGODB_URI: mongodb://payment-db:27017/payment_db
+    expose:
+      - "8084"
+    networks:
+      - smart-road-internal
+
+  notification:
+    build:
+      context: ./notification
+    container_name: notification-service
+    restart: unless-stopped
+    depends_on:
+      - notification-db
+    environment:
+      SERVER_PORT: 8085
+      SPRING_DATA_MONGODB_URI: mongodb://notification-db:27017/notification_db
+    expose:
+      - "8085"
+    networks:
+      - smart-road-internal
+
+  dispatcher:
+    build:
+      context: ./dispatcher
+    container_name: dispatcher-service
+    restart: unless-stopped
+    depends_on:
+      - dispatcher-db
+      - user
+      - request
+      - mechanic
+      - payment
+      - notification
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://dispatcher-db:27017/dispatcher_db
+      DISPATCHER_USER_SERVICE_URL: http://user:8083
+      DISPATCHER_REQUEST_SERVICE_URL: http://request:8082
+      DISPATCHER_MECHANIC_SERVICE_URL: http://mechanic:8081
+      DISPATCHER_PAYMENT_SERVICE_URL: http://payment:8084
+      DISPATCHER_NOTIFICATION_SERVICE_URL: http://notification:8085
+      DISPATCHER_AUTH_ENABLED: "true"
+      DISPATCHER_API_KEY_HEADER_NAME: X-Api-Key
+      DISPATCHER_INTERNAL_HEADER_NAME: X-Dispatcher-Secret
+      DISPATCHER_INTERNAL_SHARED_SECRET: smart-road-assist-internal-secret
+      DISPATCHER_JWT_SECRET: smart-road-assist-jwt-secret-1234567890
+    ports:
+      - "8080:8080"
+    networks:
+      - smart-road-internal
+
+networks:
+  smart-road-internal:
+    driver: bridge
+
+volumes:
+  dispatcher_db_data:
+  user_db_data:
+  request_db_data:
+  mechanic_db_data:
+  mechanic_redis_data:
+  payment_db_data:
+  notification_db_data:

@@ -1,5 +1,7 @@
 package com.smartassist.user.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.smartassist.user.dto.UserRequestDTO;
@@ -15,6 +17,14 @@ import lombok.RequiredArgsConstructor;
 public class UserService implements IUserService {
 
     private final UserRepository userRepository;
+
+    @Override
+    public List<UserResponseDTO> getAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(this::convertToResponseDTO)
+                .toList();
+    }
 
     @Override
     public UserResponseDTO getUserById(String id) {

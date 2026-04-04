@@ -14,10 +14,12 @@ import com.smartassist.request.dto.response.RequestResponse;
 import com.smartassist.request.exception.InvalidRequestStateException;
 import com.smartassist.request.mapper.RequestMapper;
 import com.smartassist.request.exception.RequestNotFoundException;
+import com.smartassist.request.exception.RequestUserNotFoundException;
 import com.smartassist.request.model.AssistanceRequest;
 import com.smartassist.request.model.RequestStatus;
 import com.smartassist.request.repository.RequestRepository;
 import com.smartassist.request.service.RequestService;
+import com.smartassist.request.service.UserDirectoryService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,9 +29,11 @@ public class RequestServiceImpl implements RequestService {
 
     private final RequestRepository requestRepository;
     private final RequestMapper requestMapper;
+    private final UserDirectoryService userDirectoryService;
 
     @Override
     public RequestResponse createRequest(CreateRequestRequest request) {
+        validateUserExists(request.userId());
         AssistanceRequest assistanceRequest = requestMapper.toEntity(request, Instant.now());
         AssistanceRequest savedRequest = requestRepository.save(assistanceRequest);
         return requestMapper.toResponse(savedRequest);
@@ -124,5 +128,11 @@ public class RequestServiceImpl implements RequestService {
 
     private String buildInvalidAssignmentMessage(RequestStatus status) {
         return "Cannot assign mechanic to request with status " + status;
+    }
+
+    private void validateUserExists(String userId) {
+        if (!userDirectoryService.userExists(userId)) {
+            throw new RequestUserNotFoundException("User not found: " + userId);
+        }
     }
 }
