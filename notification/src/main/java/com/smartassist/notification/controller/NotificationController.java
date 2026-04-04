@@ -39,4 +39,12 @@ public class NotificationController {
         NotificationResponseDTO response = notificationService.markAsRead(id);
         return ResponseEntity.ok(response);
     }
+    
+    @GetMapping("/user/{userId}")
+        public ResponseEntity<java.util.List<NotificationResponseDTO>> getNotificationsByUserId(@PathVariable String userId) {
+            // Servisi çağırıp listeyi alıyoruz
+            java.util.List<NotificationResponseDTO> response = notificationService.getNotificationsByUserId(userId);
+            // 200 OK ile listeyi dönüyoruz
+            return ResponseEntity.ok(response);
+        }
 }
