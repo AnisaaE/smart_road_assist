@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/notifications")
+@RequestMapping("/api/notifications") // Başına /api ekledik
 public class NotificationController {
 
     private final INotificationService notificationService;
@@ -29,6 +29,14 @@ public class NotificationController {
     @GetMapping("/{id}")
     public ResponseEntity<NotificationResponseDTO> getNotificationById(@PathVariable String id) {
         NotificationResponseDTO response = notificationService.getNotificationById(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{id}/read")
+    public ResponseEntity<NotificationResponseDTO> markAsRead(@PathVariable String id) {
+        // Testte "when(...).thenThrow(...)" dediğimiz için 
+        // servis katmanı burada hata fırlatacak ve Handler devreye girecek.
+        NotificationResponseDTO response = notificationService.markAsRead(id);
         return ResponseEntity.ok(response);
     }
 }
