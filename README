@@ -1,112 +1,384 @@
-# System Workflow
+# 🚗 Smart Road Assist — Mikroservis & API Gateway Projesi
 
-The Smart Road Assist system simulates a roadside assistance platform
-where users can request help and dispatchers assign mechanics.
+**Kocaeli Üniversitesi — Teknoloji Fakültesi**  
+**Bilişim Sistemleri Mühendisliği**  
+**Yazılım Geliştirme Laboratuvarı II — Proje I**
 
-1. Registration and login
+| | |
+|---|---|
+| **Ekip Üyeleri** | [Ad Soyad 1] · [Ad Soyad 2] |
+| **Tarih** | Nisan 2026 |
+| **Repo** | [github.com/KULLANICI_ADI/smart_road_assist](https://github.com/KULLANICI_ADI/smart_road_assist) |
 
-All users register through the Dispatcher.
-Dispatcher stores authentication data in MongoDB.
+---
 
-Each user has a role:
+## 📋 İçindekiler
 
-ADMIN
-USER
-MECHANIC
-DISPATCHER
+- [Proje Tanımı](#-proje-tanımı)
+- [Sistem Mimarisi](#-sistem-mimarisi)
+- [Servisler](#-servisler)
+- [Richardson Olgunluk Modeli](#-richardson-olgunluk-modeli-rmm)
+- [TDD Yaklaşımı](#-tdd-yaklaşımı)
+- [API Dokümantasyonu](#-api-dokümantasyonu)
+- [Kurulum & Çalıştırma](#-kurulum--çalıştırma)
+- [Test Sonuçları](#-test-sonuçları)
+- [Veritabanı](#-veritabanı)
+- [Sonuç](#-sonuç)
 
-Dispatcher validates tokens and permissions for every request.
+---
 
-2. Creating a request
+## 🎯 Proje Tanımı
 
-A USER sends a request for help.
+Smart Road Assist, yol kenarı yardım taleplerini yöneten bir **mikroservis tabanlı** sistemdir. Kullanıcılar yardım talebinde bulunur, Dispatcher merkezi olarak talepleri alır, mekaniklere atar ve tüm süreci orkestre eder.
 
-POST /requests
+### Amaç
 
-The request contains:
+- Bağımsız mikroservislerden oluşan ölçeklenebilir bir sistem geliştirmek
+- Tüm dış istekleri tek noktadan (Dispatcher) yönetmek
+- TDD disipliniyle hata oranını minimize etmek
+- RMM Seviye 2+ standartlarına uygun RESTful API tasarlamak
 
-type
-description
-location
+---
 
-Request status is set to CREATED.
+## 🏗 Sistem Mimarisi
 
-3. Dispatcher assigns mechanic
+```mermaid
+graph TD
+    Client([İstemci]) -->|Tüm istekler| Dispatcher
 
-A DISPATCHER checks open requests.
+    subgraph Internal Network
+        Dispatcher -->|/users/**| UserService
+        Dispatcher -->|/payments/**| PaymentService
+        Dispatcher -->|/notifications/**| NotificationService
 
-GET /requests
+        UserService -->|MongoDB| UserDB[(user_db)]
+        PaymentService -->|MongoDB| PaymentDB[(payment_db)]
+        NotificationService -->|MongoDB| NotificationDB[(notification_db)]
+    end
 
-Dispatcher selects a mechanic and assigns the request.
+    style Dispatcher fill:#f4a261
+    style Client fill:#2a9d8f,color:#fff
+```
 
-PUT /requests/{id}/assign
+> **Network İzolasyonu:** Mikroservisler yalnızca iç ağda erişilebilir. Dış dünyaya yalnızca Dispatcher açıktır.
 
-Request status becomes ASSIGNED.
+---
 
-Mechanic status becomes BUSY.
+## 🔄 Sistem İş Akışı
 
-4. Mechanic processes request
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant D as Dispatcher
+    participant US as UserService
+    participant PS as PaymentService
+    participant NS as NotificationService
 
-Mechanic updates request status.
+    U->>D: POST /requests (yardım talebi)
+    D->>US: Kullanıcı doğrulama
+    US-->>D: Kullanıcı bilgisi
 
-PUT /requests/{id}/status
+    D->>D: Mekanik seç
+    D->>US: PATCH /users/{mechanicId}/status (BUSY)
+    D->>NS: POST /notifications (MECHANIC_ASSIGNED)
+    NS-->>U: Bildirim gönderildi
 
-Possible values:
+    D->>D: İş tamamlandı
+    D->>PS: POST /payments (ödeme oluştur)
+    PS-->>D: PENDING ödeme
+    D->>PS: PATCH /payments/{id}/status (PAID)
+    D->>NS: POST /notifications (PAYMENT_RECEIVED)
+    NS-->>U: Ödeme bildirimi
+```
 
-IN_PROGRESS
-DONE
+---
 
-5. Payment
+## 📦 Servisler
 
-After request is done,
-payment service creates payment.
+### 1. User Service (Port: 8081)
 
-POST /payments
+Kullanıcı yönetimi. Dispatcher'ın authentication için kullandığı servis.
 
-Status:
+| Rol | Açıklama |
+|-----|----------|
+| `ADMIN` | Sistem yöneticisi |
+| `USER` | Yardım talep eden kullanıcı |
+| `MECHANIC` | Yardım sağlayan mekanik |
+| `DISPATCHER` | Sistem orkestratörü |
 
-PENDING
-PAID
-FAILED
+**User Status State Machine:**
+```mermaid
+stateDiagram-v2
+    [*] --> ACTIVE: Kayıt
+    ACTIVE --> INACTIVE: Deactivate
+    ACTIVE --> BUSY: Mekanik atandı
+    BUSY --> ACTIVE: İş tamamlandı
+    INACTIVE --> [*]
+```
 
-6. Notification
+---
 
-Notification service sends message to user.
+### 2. Payment Service (Port: 8082)
 
-POST /notifications
+Ödeme yönetimi. İş tamamlandıktan sonra Dispatcher tarafından tetiklenir.
 
-Example messages:
+**Payment Status State Machine:**
+```mermaid
+stateDiagram-v2
+    [*] --> PENDING: Ödeme oluşturuldu
+    PENDING --> PAID: Ödeme başarılı
+    PENDING --> FAILED: Ödeme başarısız
+    PAID --> [*]: Terminal
+    FAILED --> [*]: Terminal
+```
 
-Mechanic assigned
-Request completed
-Payment received
+---
 
-7. Dispatcher responsibilities
+### 3. Notification Service (Port: 8083)
 
-Dispatcher is the single entry point.
+Bildirim yönetimi. Sistemdeki her önemli olayda kullanıcıya bildirim gönderir.
 
-It performs:
+**Bildirim Tipleri:**
 
-authentication
-authorization
-routing
-logging
-error handling
+| Tip | Tetikleyen Olay |
+|-----|----------------|
+| `MECHANIC_ASSIGNED` | Mekanik atandığında |
+| `REQUEST_COMPLETED` | İş tamamlandığında |
+| `PAYMENT_RECEIVED` | Ödeme alındığında |
 
-All services are accessed through dispatcher.
+**Notification Status State Machine:**
+```mermaid
+stateDiagram-v2
+    [*] --> SENT: Bildirim gönderildi
+    SENT --> READ: Kullanıcı okudu
+    READ --> [*]: Terminal
+```
 
-8. RMM Level 3
+---
 
-Each entity is a resource:
+## 📐 Richardson Olgunluk Modeli (RMM)
 
-users
-requests
-mechanics
-payments
-notifications
+Proje **RMM Seviye 2** gereksinimini karşılamakta, **Seviye 3 (HATEOAS)** ile bonus puan hedeflenmektedir.
 
-Each resource has its own URI.
+| Seviye | Kriter | Durum |
+|--------|--------|-------|
+| **Level 0** | HTTP kullanımı | ✅ |
+| **Level 1** | Resource URI'ları (`/users`, `/payments`) | ✅ |
+| **Level 2** | HTTP metodları (GET/POST/PUT/PATCH/DELETE) + doğru status kodları | ✅ |
+| **Level 3** | HATEOAS `_links` ile hipermedia navigasyon | ✅ |
 
-Correct HTTP methods are used.
+### Seviye 2 Örneği
 
-Responses may contain links to related resources.
+```
+POST   /users          → 201 Created
+GET    /users/{id}     → 200 OK / 404 Not Found
+PUT    /users/{id}     → 200 OK / 404 Not Found
+DELETE /users/{id}     → 204 No Content / 404 Not Found
+PATCH  /users/{id}/status → 200 OK / 400 Bad Request / 409 Conflict
+```
+
+### Seviye 3 Örneği (HATEOAS)
+
+```json
+{
+  "id": "notif-001",
+  "status": "SENT",
+  "_links": {
+    "self":      { "href": "/notifications/notif-001" },
+    "mark-read": { "href": "/notifications/notif-001/read" },
+    "user":      { "href": "/users/user-001" },
+    "request":   { "href": "/requests/req-001" }
+  }
+}
+```
+
+---
+
+## 🧪 TDD Yaklaşımı
+
+Proje **Red → Green → Refactor** döngüsüne uygun geliştirilmiştir.
+
+```mermaid
+flowchart LR
+    R([🔴 RED\nTest yaz\nFail et]) --> G([🟢 GREEN\nMinimum kod yaz\nGeçir])
+    G --> RF([🔵 REFACTOR\nKodu temizle\nTest geçmeye devam etmeli])
+    RF --> R
+```
+
+### TDD Commit Akışı
+
+Her özellik şu sırayla commit edilmiştir:
+
+```
+[RED]     NotificationServiceTest eklendi
+[GREEN]   NotificationService.getNotificationById eklendi
+[GREEN]   NotificationNotFoundException eklendi
+[GREEN]   NotificationService.markAsRead eklendi
+[REFACTOR] NotificationService toResponse helper ayrıştırıldı
+```
+
+### Test Kapsamı
+
+| Servis | Test Sınıfı | Test Sayısı | Kapsam |
+|--------|-------------|-------------|--------|
+| User | `UserControllerTest` | 5 | Controller |
+| User | `UserServiceTest` | 8 | Service |
+| Payment | `PaymentCreateTest` | 4 | Controller |
+| Payment | `PaymentServiceTest` | 9 | Service |
+| Notification | `NotificationServiceTest` | 5 | Service |
+| Notification | `NotificationControllerTest` | 3 | Controller |
+| Notification | `NotificationRepositoryTest` | 3 | Repository |
+
+---
+
+## 📡 API Dokümantasyonu
+
+### User Service
+
+| Method | Endpoint | Açıklama | Request | Response |
+|--------|----------|----------|---------|----------|
+| `POST` | `/users` | Kullanıcı oluştur | `UserRequestDTO` | `201 Created` |
+| `GET` | `/users/{id}` | ID ile getir | — | `200 OK` / `404` |
+| `GET` | `/users/email/{email}` | Email ile getir | — | `200 OK` / `404` |
+| `PUT` | `/users/{id}` | Güncelle | `UserRequestDTO` | `200 OK` / `404` |
+| `PATCH` | `/users/{id}/status` | Status güncelle | `?value=BUSY` | `200 OK` / `400` / `409` |
+| `DELETE` | `/users/{id}` | Sil | — | `204 No Content` / `404` |
+
+### Payment Service
+
+| Method | Endpoint | Açıklama | Response |
+|--------|----------|----------|----------|
+| `POST` | `/payments` | Ödeme oluştur | `201 Created` |
+| `GET` | `/payments/{id}` | ID ile getir | `200 OK` / `404` |
+| `GET` | `/payments/request/{requestId}` | Request ile getir | `200 OK` / `404` |
+| `PATCH` | `/payments/{id}/status` | Status güncelle | `200 OK` / `409 Conflict` |
+
+### Notification Service
+
+| Method | Endpoint | Açıklama | Response |
+|--------|----------|----------|----------|
+| `POST` | `/notifications` | Bildirim gönder | `201 Created` |
+| `GET` | `/notifications/{id}` | ID ile getir | `200 OK` / `404` |
+| `GET` | `/notifications/user/{userId}` | Kullanıcı bildirimleri | `200 OK` |
+| `PATCH` | `/notifications/{id}/read` | Okundu işaretle | `200 OK` / `404` / `409` |
+
+---
+
+## 🚀 Kurulum & Çalıştırma
+
+### Gereksinimler
+
+- Java 21
+- Maven 3.9+
+- MongoDB 7.x
+- Docker & Docker Compose
+
+### Docker ile Tek Komutta Çalıştır
+
+```bash
+docker-compose up --build
+```
+
+### Manuel Çalıştırma
+
+```bash
+# Her servis için ayrı terminal
+cd user         && ./mvnw spring-boot:run
+cd payment      && ./mvnw spring-boot:run
+cd notification && ./mvnw spring-boot:run
+```
+
+### Testleri Çalıştır
+
+```bash
+# Tek servis
+cd notification && ./mvnw test
+
+# Tüm servisler
+./mvnw test --projects user,payment,notification
+```
+
+---
+
+## 🗄 Veritabanı
+
+Her servis **tamamen izole** bir MongoDB veritabanı kullanır:
+
+| Servis | Veritabanı | Port |
+|--------|-----------|------|
+| User | `user_db` | 27017 |
+| Payment | `payment_db` | 27017 |
+| Notification | `notification_db` | 27017 |
+
+```mermaid
+erDiagram
+    USER {
+        string id PK
+        string name
+        string email
+        string phone
+        string role
+        string status
+    }
+
+    PAYMENT {
+        string id PK
+        string requestId
+        string userId
+        decimal amount
+        string paymentMethod
+        string status
+        datetime createdAt
+    }
+
+    NOTIFICATION {
+        string id PK
+        string recipientId
+        string requestId
+        string type
+        string message
+        string status
+        datetime sentAt
+    }
+```
+
+---
+
+## 📊 Test Sonuçları
+
+```
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 35, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO] BUILD SUCCESS
+```
+
+---
+
+## OOP & SOLID Prensipleri
+
+| Prensip | Uygulama |
+|---------|----------|
+| **SRP** | Her sınıf tek sorumluluk taşır (`Controller` → HTTP, `Service` → iş mantığı) |
+| **OCP** | `IUserService`, `IPaymentService`, `INotificationService` arayüzleri |
+| **DIP** | Controller'lar concrete sınıfa değil, interface'e bağlıdır |
+| **Encapsulation** | DTO'lar entity'leri dışarıya sızdırmaz |
+| **State Machine** | Payment ve Notification'da durum geçiş makinesi |
+
+---
+
+## 📝 Sonuç
+
+Bu projede modern yazılım geliştirme pratikleri bütünleşik olarak uygulanmıştır. TDD disiplini sayesinde her özellik önce test edilmiş, ardından implemente edilmiştir. Mikroservis mimarisi ile servisler birbirinden bağımsız geliştirilmiş ve her biri kendi veritabanını kullanmaktadır. RMM Seviye 3 uygulaması ile API'ler hipermedia navigasyona hazır hale getirilmiştir.
+
+### Kısıtlar & Olası Geliştirmeler
+
+- Dispatcher servisi eklenebilir (API Gateway)
+- JWT tabanlı authentication entegrasyonu yapılabilir
+- Grafana ile monitoring dashboard kurulabilir
+- k6 / JMeter ile yük testi senaryoları genişletilebilir
+
+---
+
+*Kocaeli Üniversitesi — Yazılım Geliştirme Laboratuvarı II — 2025/2026*
