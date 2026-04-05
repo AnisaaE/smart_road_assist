@@ -3,8 +3,8 @@
 ## 1. Proje Bilgileri
 - **Proje Adı:** Smart Road Assist - Mikroservis Mimarisi ve Dispatcher (API Gateway)
 - **Tarih:** Nisan 2026
-- **Ekip Üyeleri:** [Ekip üyesi 1], [Ekip üyesi 2]
-- **Dersin Adı:** Yazılım Mühendisliği - Proje Geliştirme
+- **Ekip Üyeleri:** Anisa Nezhmi Emin(221307118),Ülkü Hatip(231307028)
+- **Dersin Adı:** Yazılım Geliştirme Lab. 2
 
 ---
 
