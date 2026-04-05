@@ -36,16 +36,47 @@ Seviye 2: HTTP Metotları - CRUD işlemleri için doğru metotların kullanılma
 Seviye 3: HATEOAS - Hypermedia As The Engine Of Application State
 ```
 
-**Bu projede Seviye 2 standartları uygulanmıştır:**
+#### Seviye 2 → Seviye 3 Farkı
 
-| İşlem | HTTP Metodu | URI Örneği | Başarı Kodu |
-|-------|------------|-----------|------------|
-| Kullanıcı Listele | GET | `/api/users` | 200 OK |
-| Kullanıcı Detay | GET | `/api/users/{id}` | 200 OK |
-| Kullanıcı Oluştur | POST | `/api/users` | 201 Created |
-| Kullanıcı Güncelle | PUT | `/api/users/{id}` | 200 OK |
-| Kullanıcı Sil | DELETE | `/api/users/{id}` | 204 No Content |
-| Hata Durumu | - | - | 400/401/403/404/500 |
+| | Seviye 2 | Seviye 3 |
+|---|---|---|
+| Kaynak URI | ✅ | ✅ |
+| HTTP Metodları | ✅ | ✅ |
+| Doğru Status Kodları | ✅ | ✅ |
+| Hipermedia `_links` | ❌ | ✅ |
+
+**Bu projede Seviye 3 (HATEOAS) standartları uygulanmıştır.** Her yanıt, istemcinin sonraki adımda yapabileceği işlemleri `_links` bloğu ile taşır.
+
+#### User Service — HATEOAS Yanıt Örneği
+
+`GET /users/user-001` isteğine dönen yanıt:
+```json
+{
+  "id": "user-001",
+  "name": "Beyza",
+  "email": "beyza@example.com",
+  "phone": "5551234567",
+  "role": "USER",
+  "status": "ACTIVE",
+  "_links": {
+    "self":   { "href": "/users/user-001" },
+    "update": { "href": "/users/user-001" },
+    "delete": { "href": "/users/user-001" }
+  }
+}
+```
+
+#### Endpoint Tablosu (RMM Seviye 3)
+
+| İşlem | HTTP Metodu | URI | Başarı Kodu | `_links` içeriği |
+|-------|------------|----|----|-----------------|
+| Kullanıcı Listele | GET | `/users` | 200 OK | her eleman için `self` |
+| Kullanıcı Detay | GET | `/users/{id}` | 200 OK | `self`, `update`, `delete` |
+| Kullanıcı Oluştur | POST | `/users` | 201 Created | `self`, `update`, `delete` |
+| Kullanıcı Güncelle | PUT | `/users/{id}` | 200 OK | `self`, `update`, `delete` |
+| Status Güncelle | PATCH | `/users/{id}/status` | 200 OK | `self`, `update`, `delete` |
+| Kullanıcı Sil | DELETE | `/users/{id}` | 204 No Content | — |
+| Hata Durumu | — | — | 400/404/409/500 | — |
 
 ### 3.2 Sistem Mimarisi Diyagramı
 
@@ -445,6 +476,109 @@ Authorization: Bearer {token}
 
 Response: 204 No Content
 ```
+
+#### 4.2.3 Notification Service Endpoints (HATEOAS)
+
+```json
+GET /notifications/notif-001
+Authorization: Bearer {token}
+
+Response: 200 OK
+{
+  "id": "notif-001",
+  "recipientId": "user-001",
+  "requestId": "req-001",
+  "type": "MECHANIC_ASSIGNED",
+  "message": "Mechanic assigned to your request",
+  "status": "SENT",
+  "_links": {
+    "self":      { "href": "/notifications/notif-001" },
+    "mark-read": { "href": "/notifications/notif-001/read" },
+    "user":      { "href": "/users/user-001" },
+    "request":   { "href": "/requests/req-001" }
+  }
+}
+```
+
+```json
+PATCH /notifications/notif-001/read
+Authorization: Bearer {token}
+
+Response: 200 OK
+{
+  "id": "notif-001",
+  "recipientId": "user-001",
+  "type": "MECHANIC_ASSIGNED",
+  "message": "Mechanic assigned to your request",
+  "status": "READ",
+  "readAt": "2024-04-05T15:30:45Z",
+  "_links": {
+    "self":      { "href": "/notifications/notif-001" },
+    "user":      { "href": "/users/user-001" },
+    "request":   { "href": "/requests/req-001" }
+  }
+}
+```
+
+#### 4.2.4 Payment Service Endpoints (HATEOAS)
+
+```json
+POST /payments
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "requestId": "req-001",
+  "userId": "user-001",
+  "amount": 350.00,
+  "paymentMethod": "CREDIT_CARD"
+}
+
+Response: 201 Created
+{
+  "id": "pay-001",
+  "requestId": "req-001",
+  "userId": "user-001",
+  "amount": 350.00,
+  "paymentMethod": "CREDIT_CARD",
+  "status": "PENDING",
+  "createdAt": "2024-04-05T14:20:30Z",
+  "_links": {
+    "self":          { "href": "/payments/pay-001" },
+    "update-status": { "href": "/payments/pay-001/status" },
+    "request":       { "href": "/requests/req-001" },
+    "user":          { "href": "/users/user-001" }
+  }
+}
+```
+
+```json
+PATCH /payments/pay-001/status
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "status": "COMPLETED"
+}
+
+Response: 200 OK
+{
+  "id": "pay-001",
+  "requestId": "req-001",
+  "userId": "user-001",
+  "amount": 350.00,
+  "paymentMethod": "CREDIT_CARD",
+  "status": "COMPLETED",
+  "processedAt": "2024-04-05T14:25:45Z",
+  "_links": {
+    "self":    { "href": "/payments/pay-001" },
+    "request": { "href": "/requests/req-001" },
+    "user":    { "href": "/users/user-001" }
+  }
+}
+```
+
+> **HATEOAS Avantajı:** `_links.request` ve `_links.user` alanları **inter-service navigasyon** sağlar — Dispatcher ilgili servise `_links` üzerinden ulaşır, URI'ı hardcode etmez.
 
 ### 4.3 Hata Yönetimi
 
